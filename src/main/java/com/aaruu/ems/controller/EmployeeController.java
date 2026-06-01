@@ -1,6 +1,12 @@
 package com.aaruu.ems.controller;
 
+import java.util.List;
+
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 //role of controller-"The Controller layer handles incoming HTTP requests, calls the Service layer
@@ -32,6 +38,38 @@ public class EmployeeController {
 	// @RequestBody is used to bind the JSON data from the HTTP request body to a
 	// Java object.
 
+	@GetMapping("/allEmployees")
+	public List<Employee> getAllEmployees() {
+		return employeeService.getAllEmployees();
+	}
+//@PathVariable is used to extract values from the URL and bind them to method parameters.
+//	| Annotation      | Used For                            |
+//	| --------------- | ----------------------------------- |
+//	| `@RequestBody`  | Reads data from request body (JSON) |
+//	| `@PathVariable` | Reads data from URL path            |
+
+	// @PathVariable is used to extract dynamic values from the URL and bind them to
+	// method parameters
+	// @RequestBody-It receives JSON from the request body and converts it into a
+	// Java object.
+
+	@GetMapping("/{id}")
+	public Employee getEmployeeById(@PathVariable Integer id) {
+		return employeeService.getEmployeeById(id);
+	}
+
+	@PutMapping("/{id}")
+	public Employee updateEmployee(@PathVariable Integer id, @RequestBody Employee employee) {
+
+		return employeeService.updateEmployee(id, employee);
+	}
+
+	@DeleteMapping("/{id}")
+	public void deleteEmployee(@PathVariable Integer id) {
+
+		employeeService.deleteEmployee(id);
+
+	}
 }
 
 //Controller should depend on the Service interface rather than the implementation.

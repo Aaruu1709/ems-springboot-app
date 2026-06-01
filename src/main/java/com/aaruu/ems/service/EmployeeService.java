@@ -22,7 +22,12 @@ public interface EmployeeService {
 
 	Employee getEmployeeById(Integer id);
 
-	Employee updateEmployee(Employee employee);
+	Employee updateEmployee(Integer id, Employee employee);
 
 	void deleteEmployee(Integer id);
 }
+
+//404 not found=>The request was valid, but the resource doesn't exist.
+
+//The ID identifies which record should be updated, while the Employee object contains the new data that needs to be store
+//findById() it return  optional , Optional helps avoid NullPointerException and provides a safe way to handle cases where a record may not exist.

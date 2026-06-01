@@ -20,3 +20,6 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
 //deleteById()
 //existsById()
 //count() and many more
+
+//JpaRepository provides the findById() method.
+//It returns an Optional<Entity>, which helps handle cases where the record is not found.
