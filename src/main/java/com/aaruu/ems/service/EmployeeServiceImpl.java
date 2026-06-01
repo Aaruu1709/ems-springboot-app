@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.aaruu.ems.entity.Employee;
+import com.aaruu.ems.exception.EmployeeNotFoundException;
 import com.aaruu.ems.repository.EmployeeRepository;
 
 //Spring supports dependency injection using field injection, setter injection, and constructor injection.
@@ -50,7 +51,8 @@ public class EmployeeServiceImpl implements EmployeeService {
 
 	@Override
 	public Employee getEmployeeById(Integer id) {
-		return employeeRepository.findById(id).orElse(null);
+		return employeeRepository.findById(id)
+				.orElseThrow(() -> new EmployeeNotFoundException("Employee not found with id : " + id));
 		// here we can also write orElseThrow(()->new RuntimeException("employee not
 		// found"));
 	}
