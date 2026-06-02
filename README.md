@@ -86,6 +86,14 @@ MySQL Database
 - Update Employee
 - Delete Employee
 
+#### Day 4: Exception Handling
+
+- Created custom exception: EmployeeNotFoundException
+- Used orElseThrow() instead of orElse(null)
+- Implemented GlobalExceptionHandler using @RestControllerAdvice
+- Handled EmployeeNotFoundException centrally using @ExceptionHandler
+- Returned meaningful error messages when employee records were not found
+- Improved API design by avoiding null responses
 ---
 
 ## API Endpoints
