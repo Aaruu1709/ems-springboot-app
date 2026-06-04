@@ -1,9 +1,11 @@
 package com.aaruu.ems.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.aaruu.ems.dto.EmmployeeDto;
 import com.aaruu.ems.entity.Employee;
 import com.aaruu.ems.exception.EmployeeNotFoundException;
 import com.aaruu.ems.repository.EmployeeRepository;
@@ -43,16 +45,42 @@ public class EmployeeServiceImpl implements EmployeeService {
 //	and Hibernate handles the SQL generation behind the scenes.
 
 	@Override
-	public List<Employee> getAllEmployees() {
-		return employeeRepository.findAll();
+	public List<EmmployeeDto> getAllEmployees() {
+
+		List<Employee> employees = employeeRepository.findAll();
+
+		List<EmmployeeDto> employeeDTOList = new ArrayList<>();
+
+		for (Employee employee : employees) {
+
+			EmmployeeDto dto = new EmmployeeDto();
+
+			dto.setName(employee.getFirstName());
+
+			dto.setEmail(employee.getEmail());
+
+			employeeDTOList.add(dto);
+
+		}
+
+		return employeeDTOList;
+
 	}
 	// We can use the built-in findAll() method provided by JpaRepository. It
 	// returns a List of entities.
 
 	@Override
-	public Employee getEmployeeById(Integer id) {
-		return employeeRepository.findById(id)
+	public EmmployeeDto getEmployeeById(Integer id) {
+		Employee employee = employeeRepository.findById(id)
 				.orElseThrow(() -> new EmployeeNotFoundException("Employee not found with id : " + id));
+
+		EmmployeeDto dto = new EmmployeeDto();
+
+		dto.setName(employee.getFirstName());
+
+		dto.setEmail(employee.getEmail());
+
+		return dto;
 		// here we can also write orElseThrow(()->new RuntimeException("employee not
 		// found"));
 	}

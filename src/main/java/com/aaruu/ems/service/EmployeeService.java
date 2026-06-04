@@ -12,8 +12,11 @@ package com.aaruu.ems.service;
 
 import java.util.List;
 
+import org.springframework.stereotype.Service;
+
 import com.aaruu.ems.entity.Employee;
 
+@Service
 public interface EmployeeService {
 
 	Employee saveEmployee(Employee employee);

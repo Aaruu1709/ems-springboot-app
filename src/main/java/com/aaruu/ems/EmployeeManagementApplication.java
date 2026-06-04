@@ -11,3 +11,22 @@ public class EmployeeManagementApplication {
 	}
 
 }
+
+//
+//GET /employees/90
+//↓
+//Controller
+//↓
+//Service
+//↓
+//findById()
+//↓
+//Employee not found
+//↓
+//orElseThrow()
+//↓
+//EmployeeNotFoundException
+//↓
+//GlobalExceptionHandler
+//↓
+//"Employee not found with id : 90"

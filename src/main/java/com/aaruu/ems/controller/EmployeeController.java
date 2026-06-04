@@ -2,6 +2,9 @@ package com.aaruu.ems.controller;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,8 +16,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 //to process business logic, and returns responses to the client.
 import org.springframework.web.bind.annotation.RestController;
 
+import com.aaruu.ems.dto.EmmployeeDto;
 import com.aaruu.ems.entity.Employee;
 import com.aaruu.ems.service.EmployeeService;
+
 //@RestController
 //It tells Spring Boot that this class will handle REST API requests and return data (usually JSON) to the client
 //@RestController is a combination of @Controller and @ResponseBody.
@@ -32,15 +37,22 @@ public class EmployeeController {
 	}
 
 	@PostMapping
-	public Employee saveEmployee(@RequestBody Employee employee) {
-		return employeeService.saveEmployee(employee);
+	public ResponseEntity<Employee> saveEmployee(@Valid @RequestBody EmmployeeDto employee) {
+		Employee e = employeeService.saveEmployee(employee);
+		return ResponseEntity.status(201).body(e);
 	}
+	// Return HTTP status code 201 Created.
+	// Return the saved Employee object in the response body.
 	// @RequestBody is used to bind the JSON data from the HTTP request body to a
 	// Java object.
 
 	@GetMapping("/allEmployees")
-	public List<Employee> getAllEmployees() {
-		return employeeService.getAllEmployees();
+	public ResponseEntity<List<EmmployeeDto>> getAllEmployees() {
+
+		List<EmmployeeDto> employees = employeeService.getAllEmployees();
+
+		return ResponseEntity.ok(employees);
+
 	}
 //@PathVariable is used to extract values from the URL and bind them to method parameters.
 //	| Annotation      | Used For                            |
@@ -54,8 +66,9 @@ public class EmployeeController {
 	// Java object.
 
 	@GetMapping("/{id}")
-	public Employee getEmployeeById(@PathVariable Integer id) {
-		return employeeService.getEmployeeById(id);
+	public ResponseEntity<EmmployeeDto> getEmployeeById(@PathVariable Integer id) {
+		EmmployeeDto employee = employeeService.getEmployeeById(id);
+		return ResponseEntity.ok(employee);
 	}
 
 	@PutMapping("/{id}")
