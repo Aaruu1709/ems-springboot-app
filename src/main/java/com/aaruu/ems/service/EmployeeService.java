@@ -14,6 +14,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.aaruu.ems.dto.EmmployeeDto;
 import com.aaruu.ems.entity.Employee;
 
 @Service
@@ -21,9 +22,9 @@ public interface EmployeeService {
 
 	Employee saveEmployee(Employee employee);
 
-	List<Employee> getAllEmployees();
+	List<EmmployeeDto> getAllEmployees();
 
-	Employee getEmployeeById(Integer id);
+	EmmployeeDto getEmployeeById(Integer id);
 
 	Employee updateEmployee(Integer id, Employee employee);
 

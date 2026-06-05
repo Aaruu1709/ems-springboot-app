@@ -5,6 +5,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
 
 @Entity
 @Table(name = "employees")
@@ -13,13 +15,16 @@ public class Employee {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
+
+	@NotEmpty(message = "name should not be empty")
 	private String firstName;
 	private String lastName;
+	@Email(message = "plz type correct email")
 	private String email;
 	private String department;
-	private double salary;
+	private Double salary;
 
-	public Employee(Integer id, String firstName, String lastName, String email, String department, double salary) {
+	public Employee(Integer id, String firstName, String lastName, String email, String department, Double salary) {
 		super();
 		this.id = id;
 		this.firstName = firstName;
@@ -74,11 +79,11 @@ public class Employee {
 		this.department = department;
 	}
 
-	public double getSalary() {
+	public Double getSalary() {
 		return salary;
 	}
 
-	public void setSalary(double salary) {
+	public void setSalary(Double salary) {
 		this.salary = salary;
 	}
 

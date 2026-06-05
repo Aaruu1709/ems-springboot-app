@@ -1,12 +1,12 @@
 package com.aaruu.ems.dto;
 
 //import jakarta.validation.constraints.Email;
-//import jakarta.validation.constraints.NotBlank;
+//import jakarta.validation.constraints.NotEmpty;
 
 public class EmmployeeDto {
-	@org.hibernate.validator.constraints.NotBlank(message = "name should not be empty")
+//	@NotEmpty(message = "please enter your name")
 	private String firstName;
-	@org.hibernate.validator.constraints.Email(message = "enter correct email")
+//	@Email(message = "emial should be correcr")
 	private String email;
 
 	public EmmployeeDto(String firstName, String email) {
