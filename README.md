@@ -94,6 +94,183 @@ MySQL Database
 - Handled EmployeeNotFoundException centrally using @ExceptionHandler
 - Returned meaningful error messages when employee records were not found
 - Improved API design by avoiding null responses
+
+  ### Day 5 & 6 :
+  # Spring Boot – DTO + Validation Learning Notes
+
+## What we learned today
+
+### 1. DTO (Data Transfer Object)
+
+DTO is used to control what data goes outside from backend to client.
+
+Before DTO:
+We were returning complete Employee entity.
+
+Example response:
+
+{
+"id":1,
+"firstName":"Arti",
+"email":"[abc@gmail.com](mailto:abc@gmail.com)",
+"salary":50000,
+"department":"IT"
+}
+
+Problem:
+Client receives unnecessary data.
+
+Solution:
+Create EmployeeDTO and return only required fields.
+
+Example:
+
+{
+"firstName":"Arti",
+"email":"[abc@gmail.com](mailto:abc@gmail.com)"
+}
+
+Flow:
+
+Client
+↓
+Controller
+↓
+Service
+↓
+Repository
+↓
+Entity
+↓
+DTO
+↓
+Response
+
+Simple memory line:
+
+DTO = Control what goes OUT
+
+## 2. Validation
+
+Validation is used to check request data before saving into database.
+
+Problem:
+
+User can send:
+
+{
+"firstName":"",
+"email":"abc"
+}
+
+Without validation → invalid data gets saved.
+
+Solution:
+
+Add validation annotations.
+
+Example:
+
+@NotBlank → empty value not allowed
+
+@Email → invalid email not allowed
+
+Add:
+
+@Valid
+
+inside controller request body.
+
+Flow:
+
+Request
+↓
+Validation
+↓
+Controller
+↓
+Service
+↓
+Database
+
+Simple memory line:
+
+Validation = Control what comes IN
+
+## 3. Validation Error Handling
+
+When validation fails:
+
+Spring throws:
+
+MethodArgumentNotValidException
+
+We catch it using:
+
+@ExceptionHandler
+
+inside:
+
+GlobalExceptionHandler
+
+Flow:
+
+Request
+↓
+Validation Failed
+↓
+MethodArgumentNotValidException
+↓
+GlobalExceptionHandler
+↓
+Custom Response
+
+## 4. Important Bug We Solved
+
+Issue:
+
+400 Bad Request
+
+Error:
+
+Cannot map null into type double
+
+Reason:
+
+Primitive type cannot store null.
+
+Wrong:
+
+private double salary;
+
+Correct:
+
+private Double salary;
+
+Why?
+
+double → primitive → cannot store null
+
+Double → wrapper → can store null
+
+Industry preference in Entity:
+
+Integer
+
+Double
+
+Long
+
+Boolean
+
+## Final Learning
+
+DTO → Controls Output
+
+Validation → Controls Input
+
+Wrapper Classes → Help handle null values safely
+
 ---
 
 ## API Endpoints
