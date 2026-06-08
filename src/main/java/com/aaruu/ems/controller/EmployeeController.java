@@ -2,6 +2,7 @@ package com.aaruu.ems.controller;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 //role of controller-"The Controller layer handles incoming HTTP requests, calls the Service layer
 //to process business logic, and returns responses to the client.
 import org.springframework.web.bind.annotation.RestController;
@@ -78,6 +80,23 @@ public class EmployeeController {
 		employeeService.deleteEmployee(id);
 
 	}
+
+	@GetMapping("/page")
+	public ResponseEntity<Page<EmmployeeDto>> getEmployee(@RequestParam int page, @RequestParam int size,
+			@RequestParam String sortBy) {
+		Page<EmmployeeDto> employees = employeeService.getEmployees(page, size, sortBy);
+
+		return ResponseEntity.ok(employees);
+
+	}
+
+	@GetMapping("/search")
+	public ResponseEntity<List<EmmployeeDto>> searchEmployee(@RequestParam String keyword) {
+
+		List<EmmployeeDto> employees = employeeService.searchEmployee(keyword);
+		return ResponseEntity.ok(employees);
+
+	}
 }
 
 //Controller should depend on the Service interface rather than the implementation.
@@ -93,3 +112,16 @@ public class EmployeeController {
 //Repository
 //↓
 //MySQL
+
+//---------------------------------------------------
+
+//"I used Swagger in my project for API documentation and testing. "
+//+ "It provides all APIs in one place with a UI, so developers and "
+//+ "testers can execute requests, pass input values, "
+//+ "and verify responses without manually creating requests.
+
+//----------------------------------------------
+
+//"Swagger is used to document and test APIs."
+//+ " It shows all endpoints in one place and allows us "
+//+ "to execute APIs directly from the browser

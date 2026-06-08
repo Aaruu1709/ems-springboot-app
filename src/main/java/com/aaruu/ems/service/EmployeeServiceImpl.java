@@ -3,6 +3,9 @@ package com.aaruu.ems.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.aaruu.ems.dto.EmmployeeDto;
@@ -55,7 +58,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
 			EmmployeeDto dto = new EmmployeeDto();
 
-			dto.setName(employee.getFirstName());
+			dto.setFirstName(employee.getFirstName());
 
 			dto.setEmail(employee.getEmail());
 
@@ -76,7 +79,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
 		EmmployeeDto dto = new EmmployeeDto();
 
-		dto.setName(employee.getFirstName());
+		dto.setFirstName(employee.getFirstName());
 
 		dto.setEmail(employee.getEmail());
 
@@ -124,5 +127,22 @@ public class EmployeeServiceImpl implements EmployeeService {
 	}
 	// JpaRepository provides the deleteById() method, which deletes a record based
 	// on its primary key.
+
+	@Override
+	public Page<EmmployeeDto> getEmployees(int page, int size, String sortBy) {
+
+		Page<Employee> employees = employeeRepository.findAll(PageRequest.of(page, size, Sort.by(sortBy)));
+		return employees.map(employee -> new EmmployeeDto(employee.getFirstName(), employee.getEmail()));
+	}
+
+	@Override
+	public List<EmmployeeDto> searchEmployee(String keyword) {
+
+		List<Employee> employees = employeeRepository
+				.findByFirstNameContainingIgnoreCaseOrEmailContainingIgnoreCase(keyword, keyword);
+
+		return employees.stream().map(employee -> new EmmployeeDto(employee.getFirstName(), employee.getEmail()))
+				.toList();
+	}
 
 }

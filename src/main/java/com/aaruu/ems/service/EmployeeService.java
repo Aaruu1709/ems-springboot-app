@@ -12,6 +12,7 @@ package com.aaruu.ems.service;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import com.aaruu.ems.dto.EmmployeeDto;
@@ -29,6 +30,10 @@ public interface EmployeeService {
 	Employee updateEmployee(Integer id, Employee employee);
 
 	void deleteEmployee(Integer id);
+
+	Page<EmmployeeDto> getEmployees(int page, int size, String sortBy);
+
+	List<EmmployeeDto> searchEmployee(String keyword);
 }
 
 //404 not found=>The request was valid, but the resource doesn't exist.

@@ -1,10 +1,14 @@
 package com.aaruu.ems.repository;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.aaruu.ems.entity.Employee;
 
 public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
+
+	List<Employee> findByFirstNameContainingIgnoreCaseOrEmailContainingIgnoreCase(String firstName, String email);
 
 }
 //The first generic type is the Entity class managed by the repository, 

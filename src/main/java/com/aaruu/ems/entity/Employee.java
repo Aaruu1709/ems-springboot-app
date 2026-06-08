@@ -6,20 +6,28 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotBlank;
 
 @Entity
 @Table(name = "employees")
 public class Employee {
 
+	// @NotEmpty
+//	→ allows spaces
+//
+//	@NotBlank
+//	→ blocks spaces too
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 
-	@NotEmpty(message = "name should not be empty")
+	@NotBlank(message = "name should not be empty")
 	private String firstName;
 	private String lastName;
-	@Email(message = "plz type correct email")
+	@NotBlank(message = "Email should not be empty")
+
+	@Email(message = "Please enter valid email")
 	private String email;
 	private String department;
 	private Double salary;
