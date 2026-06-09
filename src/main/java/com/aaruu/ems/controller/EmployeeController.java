@@ -97,6 +97,14 @@ public class EmployeeController {
 		return ResponseEntity.ok(employees);
 
 	}
+
+	@GetMapping("/filter")
+	public ResponseEntity<List<EmmployeeDto>> filterByDepartment(@RequestParam String department) {
+
+		List<EmmployeeDto> employees = employeeService.filterByDepartment(department);
+		return ResponseEntity.ok(employees);
+
+	}
 }
 
 //Controller should depend on the Service interface rather than the implementation.

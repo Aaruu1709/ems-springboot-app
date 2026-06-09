@@ -10,6 +10,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
 
 	List<Employee> findByFirstNameContainingIgnoreCaseOrEmailContainingIgnoreCase(String firstName, String email);
 
+	List<Employee> findByDepartmentIgnoreCase(String department);
 }
 //The first generic type is the Entity class managed by the repository, 
 //and the second generic type is the data type of the Entity's primary key

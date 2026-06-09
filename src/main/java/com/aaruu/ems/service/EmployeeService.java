@@ -34,6 +34,9 @@ public interface EmployeeService {
 	Page<EmmployeeDto> getEmployees(int page, int size, String sortBy);
 
 	List<EmmployeeDto> searchEmployee(String keyword);
+
+	List<EmmployeeDto> filterByDepartment(String department);
+
 }
 
 //404 not found=>The request was valid, but the resource doesn't exist.
