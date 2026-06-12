@@ -273,6 +273,42 @@ Wrapper Classes → Help handle null values safely
 
 ---
 
+## Day Progress 7-8
+
+### Completed 
+
+* Integrated MapStruct into the project
+* Configured MapStruct processor in Maven
+* Created EmployeeMapper interface
+* Generated mapper implementation automatically
+* Refactored manual DTO conversion into MapStruct mapping
+* Cleaned ServiceImpl structure
+
+### Refactored APIs
+
+* Get All Employees
+* Get Employee By Id
+* Pagination API
+* Search Employee API
+* Filter By Department API
+
+### Improvements
+
+* Removed repetitive DTO creation code
+* Reduced boilerplate code
+* Improved maintainability
+* Followed industry-style layered architecture
+
+### Learning Outcome
+
+Learned how MapStruct helps convert Entity ↔ DTO automatically and keeps service classes clean and scalable.
+-----------------------------------------------------------------
+
+### Day 9-10
+
+
+------------------------------------------------------------------------------------
+
 ## API Endpoints
 
 ### Create Employee
