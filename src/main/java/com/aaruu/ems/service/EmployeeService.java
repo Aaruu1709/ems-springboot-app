@@ -31,11 +31,15 @@ public interface EmployeeService {
 
 	void deleteEmployee(Integer id);
 
-	Page<EmmployeeDto> getEmployees(int page, int size, String sortBy);
+	Page<EmmployeeDto> getEmployees(int page, int size, String sortBy, String direction);
 
 	List<EmmployeeDto> searchEmployee(String keyword);
 
 	List<EmmployeeDto> filterByDepartment(String department);
+
+	Employee patchEmployee(Integer id, Employee employee);
+
+	void restoreEmployee(Integer id);
 
 }
 

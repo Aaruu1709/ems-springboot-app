@@ -1,7 +1,20 @@
+//"Logger is used to record application events, 
+//monitor execution flow, debug issues, and track errors.
+//In Spring Boot we 
+//commonly use SLF4J as abstraction and Logback as implementation
+
+//logpack-actual tool to write lg
+//slf4j-common way to write logs
+//logger.info()-> SLF4J-> logback->console/file
 package com.aaruu.ems.service;
 
 import java.util.List;
 
+//SLF4J means:
+//Simple Logging Facade For Java
+//Common logging interface
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -16,6 +29,8 @@ import com.aaruu.ems.repository.EmployeeRepository;
 //In modern Spring Boot applications,
 //constructor injection is preferred because it improves testability and makes dependencies explicit."
 
+import jakarta.transaction.Transactional;
+
 //As a experienced developer, interviewers often prefer Constructor Injection over field injection (@Autowired on fields).
 
 //@Service → tells Spring this is a Service bean.
@@ -23,6 +38,16 @@ import com.aaruu.ems.repository.EmployeeRepository;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
+
+	// simple developer language->what,when,where happend
+	// methods of logger: info
+	private static final Logger logger = LoggerFactory.getLogger(EmployeeServiceImpl.class);
+//static:Avoid creating logger object repeatedly
+//	logger logger->create space to write log
+	// LoggerFactory->Factory creates logger object
+	// EmployeeServiceImpl.class: attach logger to this class
+	// Create one permanent logger for this class
+//	to print application activity.
 
 	private final EmployeeRepository employeeRepository;
 
@@ -63,6 +88,15 @@ public class EmployeeServiceImpl implements EmployeeService {
 
 	@Override
 	public EmmployeeDto getEmployeeById(Integer id) {
+		logger.info("Fetching employee with id {}", id);
+		logger.warn("Employee not found {}", id);// warning->Data missing,unexpected result
+		logger.error("Database connection failed");// for failure, exception or server issue
+
+//		logger.debug(
+//				"Employee object {}",
+//				employee
+//				);//developer debugging, local, testing
+
 		Employee employee = employeeRepository.findById(id)
 				.orElseThrow(() -> new EmployeeNotFoundException("Employee not found with id : " + id));
 
@@ -114,11 +148,23 @@ public class EmployeeServiceImpl implements EmployeeService {
 	// on its primary key.
 
 	@Override
-	public Page<EmmployeeDto> getEmployees(int page, int size, String sortBy) {
+	public Page<EmmployeeDto> getEmployees(int page, int size, String sortBy, String direction) {
 
 		Page<Employee> employees = employeeRepository.findAll(PageRequest.of(page, size, Sort.by(sortBy)));
 //		return employees.map(employee -> new EmmployeeDto(employee.getFirstName(), employee.getEmail()));
 		// mapper
+
+		Sort sort =
+
+				direction.equalsIgnoreCase("desc")
+
+						?
+
+						Sort.by(sortBy).descending()
+
+						:
+
+						Sort.by(sortBy).ascending();
 
 		return employees.map(employeeMapper::toDto);
 	}
@@ -138,6 +184,27 @@ public class EmployeeServiceImpl implements EmployeeService {
 		List<Employee> employees = employeeRepository.findByDepartmentIgnoreCase(department);
 		return employees.stream().map(employeeMapper::toDto).toList();
 
+	}
+
+	@Override
+	public Employee patchEmployee(Integer id, Employee employee) {
+
+		Employee existingEmployee =
+
+				employeeRepository.findById(id)
+
+						.orElseThrow(() -> new EmployeeNotFoundException("Employee not found with id : " + id));
+
+		employeeMapper.patchEmployee(employee, existingEmployee);
+
+		return employeeRepository.save(existingEmployee);
+
+	}
+
+	@Transactional
+	@Override
+	public void restoreEmployee(Integer id) {
+		employeeRepository.restoreEmployee(id);
 	}
 
 }

@@ -4,10 +4,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import com.aaruu.ems.payload.ApiResponse;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -15,24 +18,74 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(EmployeeNotFoundException.class)
 	@ResponseStatus(HttpStatus.NOT_FOUND)
 
-	public String handleEmployeeNotFoundException(EmployeeNotFoundException ex) {
+	public ResponseEntity<ApiResponse<Object>> handleEmployeeNotFoundException(EmployeeNotFoundException ex) {
 
-		return ex.getMessage();
+		return ResponseEntity.status(404).body(new ApiResponse<>(ex.getMessage(), 404, null));
 	}
+
+//	@ExceptionHandler(MethodArgumentNotValidException.class)
+//
+//	public Map<String, String> handleValidationException(MethodArgumentNotValidException ex) {
+//
+//		Map<String, String> errors = new HashMap<>();
+//
+//		ex.getBindingResult().getFieldErrors().forEach(error -> {
+//
+//			errors.put(error.getField(), error.getDefaultMessage());
+//
+//		});
+//
+//		return errors;
+//
+//	}
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 
-	public Map<String, String> handleValidationException(MethodArgumentNotValidException ex) {
+	public ResponseEntity<ApiResponse<Map<String, String>>>
 
-		Map<String, String> errors = new HashMap<>();
+			handleValidation(
 
-		ex.getBindingResult().getFieldErrors().forEach(error -> {
+					MethodArgumentNotValidException ex
 
-			errors.put(error.getField(), error.getDefaultMessage());
+	) {
 
-		});
+		Map<String, String>
 
-		return errors;
+		errors = new HashMap<>();
+
+		ex.getBindingResult()
+
+				.getFieldErrors()
+
+				.forEach(error ->
+
+				errors.put(
+
+						error.getField(),
+
+						error.getDefaultMessage()
+
+				)
+
+				);
+
+		return ResponseEntity
+
+				.badRequest()
+
+				.body(
+
+						new ApiResponse<>(
+
+								"Validation Failed",
+
+								400,
+
+								errors
+
+						)
+
+				);
 
 	}
 

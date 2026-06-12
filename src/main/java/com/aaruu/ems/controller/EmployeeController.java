@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -18,11 +19,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.aaruu.ems.dto.EmmployeeDto;
 import com.aaruu.ems.entity.Employee;
+import com.aaruu.ems.payload.ApiResponse;
 import com.aaruu.ems.service.EmployeeService;
 //@RestController
 //It tells Spring Boot that this class will handle REST API requests and return data (usually JSON) to the client
 //@RestController is a combination of @Controller and @ResponseBody.
 //It is used to create RESTful web services and automatically converts Java objects into JSON responses
+import com.aaruu.ems.util.ResponseUtil;
 
 import jakarta.validation.Valid;
 
@@ -63,9 +66,17 @@ public class EmployeeController {
 	// Java object.
 
 	@GetMapping("/{id}")
-	public ResponseEntity<EmmployeeDto> getEmployeeById(@PathVariable Integer id) {
-		EmmployeeDto employee = employeeService.getEmployeeById(id);
-		return ResponseEntity.ok(employee);
+
+	public ResponseEntity<ApiResponse<EmmployeeDto>>
+
+			getEmployeeById(@PathVariable Integer id) {
+
+		EmmployeeDto employee =
+
+				employeeService.getEmployeeById(id);
+
+		return ResponseEntity.ok(ResponseUtil.success("employee fetch successfully", employee));
+
 	}
 
 	@PutMapping("/{id}")
@@ -83,8 +94,8 @@ public class EmployeeController {
 
 	@GetMapping("/page")
 	public ResponseEntity<Page<EmmployeeDto>> getEmployee(@RequestParam int page, @RequestParam int size,
-			@RequestParam String sortBy) {
-		Page<EmmployeeDto> employees = employeeService.getEmployees(page, size, sortBy);
+			@RequestParam String sortBy, @RequestParam String direction) {
+		Page<EmmployeeDto> employees = employeeService.getEmployees(page, size, sortBy, direction);
 
 		return ResponseEntity.ok(employees);
 
@@ -104,6 +115,32 @@ public class EmployeeController {
 		List<EmmployeeDto> employees = employeeService.filterByDepartment(department);
 		return ResponseEntity.ok(employees);
 
+	}
+
+	@PatchMapping("/{id}")
+
+	public ResponseEntity<Employee>
+
+			patchEmployee(
+
+					@PathVariable Integer id,
+
+					@RequestBody Employee employee
+
+	) {
+
+		Employee updated =
+
+				employeeService.patchEmployee(id, employee);
+
+		return ResponseEntity.ok(updated);
+
+	}
+
+	@PatchMapping("/restore/{id}")
+	public ResponseEntity<?> restore(@PathVariable Integer id) {
+		employeeService.restoreEmployee(id);
+		return ResponseEntity.ok(ResponseUtil.success("Employee restored", null));
 	}
 }
 

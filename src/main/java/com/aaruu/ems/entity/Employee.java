@@ -1,6 +1,16 @@
 package com.aaruu.ems.entity;
 
+import java.time.LocalDateTime;
+
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -9,6 +19,9 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
 @Entity
+@SQLDelete(sql = "UPDATE employees SET deleted=true WHERE id=?")
+@SQLRestriction("deleted=false")
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "employees")
 public class Employee {
 
@@ -31,6 +44,13 @@ public class Employee {
 	private String email;
 	private String department;
 	private Double salary;
+
+	@CreatedDate
+	private LocalDateTime createdAt;
+	@LastModifiedDate
+	private LocalDateTime updatedAt;
+	@Column(nullable = false)
+	private Boolean deleted = false;
 
 	public Employee(Integer id, String firstName, String lastName, String email, String department, Double salary) {
 		super();
