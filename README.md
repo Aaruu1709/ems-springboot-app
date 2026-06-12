@@ -305,6 +305,157 @@ Learned how MapStruct helps convert Entity ↔ DTO automatically and keeps servi
 -----------------------------------------------------------------
 
 ### Day 9-10
+-----------------------------------------------
+# 1. DTO + MapStruct 
+What is DTO and why did you use MapStruct?
+
+DTO is used to transfer only required data between layers instead of exposing entity directly. Initially I mapped data manually but later integrated MapStruct because it generates mapping code at compile time, reduces boilerplate, improves readability and gives better performance than reflection-based mapping."
+Example:
+```text id="cq6k3d"
+Entity
+↓
+
+MapStruct
+
+↓
+
+DTO
+```
+
+---
+
+# 2. Standard API Response Wrapper
+Why use ApiResponse?
+
+> "I created a common ApiResponse wrapper so every API returns consistent structure. It contains message, status and actual data. This makes frontend integration easier and improves maintainability."
+
+Example:
+
+```json
+{
+"message":"Success",
+"status":200,
+"data":{}
+}
+```
+
+---
+
+# 3. Global Exception Handling 
+Why Global Exception?
+> "Instead of writing try-catch in every controller, I centralized exception handling using @RestControllerAdvice and @ExceptionHandler. It keeps controller clean and standardizes error responses."
+
+Example:
+
+```json
+{
+"message":"Employee not found",
+"status":404
+}
+```
+
+---
+
+# 4. Validation Handling 
+How did you validate request?
+I used Bean Validation annotations like @NotBlank and @Email on DTO and handled validation errors globally using MethodArgumentNotValidException.
+Example:
+
+```java
+@NotBlank
+@Email
+```
+
+---
+
+# 5. Logging (SLF4J + Logback) 
+
+Explain logging."Logging is used to monitor application flow and debug issues. I used SLF4J as logging abstraction and Logback as implementation. I added info logs in service layer to track business operations.
+
+Example:
+
+```java
+logger.info()
+logger.warn()
+logger.error()
+```
+
+Flow:
+
+```text id="v5b33d"
+Application
+
+↓
+
+SLF4J
+
+↓
+
+Logback
+
+↓
+
+Console
+```
+
+---
+
+# 6. JPA Auditing
+What is auditing?
+I implemented JPA auditing to automatically maintain createdAt and updatedAt fields using @CreatedDate and @LastModifiedDate.
+
+Example:
+
+```text
+createdAt
+updatedAt
+```
+
+---
+
+# 7. Soft Delete 
+Why Soft Delete?
+Instead of permanently removing records, I implemented soft delete using a deleted flag. Deleted data remains in database for audit and recovery purposes but stays hidden from APIs.
+
+Flow:
+
+```text id="ebqwnj"
+DELETE
+
+↓
+
+deleted=true
+```
+
+---
+
+# 8. Restore API 
+How did restore work?
+I created restore functionality using custom update query and transaction management to recover soft deleted records.
+
+Flow:
+
+```text id="2rggpm"
+deleted=1
+
+↓
+
+restore
+
+↓
+
+deleted=0
+```
+
+---
+
+# 9. Response Utility 
+Why utility?
+ I created ResponseUtil to remove duplicate response creation and keep controllers clean.
+
+---
+
+### Day 11-12###
 
 
 ------------------------------------------------------------------------------------
