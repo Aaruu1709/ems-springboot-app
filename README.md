@@ -455,9 +455,162 @@ Why utility?
 
 ---
 
-### Day 11-12###
+### Day 11-12-13 ###
+---
+# Day Progress — Spring Security + JWT Authentication Foundation 🔐
+
+## Objective
+
+Convert Employee Management System from open APIs into secured industry-style APIs using Spring Security and JWT.
+
+---
+
+## Features Implemented
+
+### 1. Spring Security Configuration
+
+Created SecurityConfig to control API access.
+
+Configured:
+
+* Swagger endpoints → public
+* Authentication endpoints → public
+* Remaining APIs → protected
+
+Concept learned:
+
+* SecurityFilterChain
+* HttpSecurity
+* requestMatchers()
+* permitAll()
+* authenticated()
+
+---
+
+### 2. Authentication Module
+
+Created authentication layer.
+
+Created:
+
+* auth package
+* LoginRequest DTO
+* AuthController
+
+Implemented:
+POST /auth/login
+
+Concept learned:
+Authentication = Verify WHO user is
+
+---
+
+### 3. Dummy Login Validation
+
+Implemented temporary credential validation.
+
+Example:
+username = jack
+password = 123
+
+Valid credentials →
+LOGIN SUCCESS
+
+Invalid credentials →
+INVALID CREDENTIALS
+
+---
+
+### 4. JWT Integration
+
+Added JWT dependencies.
+
+Created:
+
+* jwt package
+* JwtService
+
+Implemented:
+
+* generateToken()
+* token expiry
+* subject(username)
+* signing
+
+Output:
+JWT token generated successfully.
+
+Concept learned:
+JWT = JSON Web Token
+
+Structure:
+Header.Payload.Signature
+
+---
+
+### 5. JWT Filter Creation
+
+Created JwtFilter using OncePerRequestFilter.
+
+Implemented:
+
+* Read Authorization header
+* Receive JWT
+* Extract username
+
+Console Output:
+USER -> jack
+
+Concept learned:
+Request → Filter → Security → Controller
+
+---
+
+## Interview Concepts Covered
+
+Authentication
+→ Verify identity (WHO)
+
+Authorization
+→ Verify permission (WHAT)
+
+JWT
+→ Stateless authentication
+
+Security Filter Chain
+→ Request validation pipeline
+
+---
+
+## Final Achievement
+
+Login
+
+↓
+
+Generate JWT
+
+↓
+
+Send Token
+
+↓
+
+Read Token
+
+↓
+
+Extract User
+
+↓
+
+Ready for Authorization
 
 
+
+
+---
+### day 14-15###
 ------------------------------------------------------------------------------------
 
 ## API Endpoints
