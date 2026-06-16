@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.aaruu.ems.entity.Employee;
 
@@ -24,7 +25,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
 			WHERE e.id=:id
 
 			""")
-	void restoreEmployee(Integer id);
+	void restoreEmployee(@Param("id") Integer id);
 }
 //The first generic type is the Entity class managed by the repository, 
 //and the second generic type is the data type of the Entity's primary key
