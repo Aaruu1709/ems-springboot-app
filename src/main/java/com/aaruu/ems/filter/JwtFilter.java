@@ -3,6 +3,10 @@ package com.aaruu.ems.filter;
 import java.io.IOException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -22,7 +26,11 @@ public class JwtFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(
 
-			HttpServletRequest request, HttpServletResponse response, FilterChain filterChain
+			HttpServletRequest request,
+
+			HttpServletResponse response,
+
+			FilterChain filterChain
 
 	)
 
@@ -30,9 +38,19 @@ public class JwtFilter extends OncePerRequestFilter {
 
 		System.out.println("FILTER ENTERED");
 
-		String token = request.getHeader("Authorization");
+		String token =
 
-		System.out.println("TOKEN -> " + token);
+				request.getHeader(
+
+						"Authorization"
+
+				);
+
+		System.out.println(
+
+				"TOKEN -> " + token
+
+		);
 
 		if (
 
@@ -40,21 +58,97 @@ public class JwtFilter extends OncePerRequestFilter {
 
 				&&
 
-				token.startsWith("Bearer ")
+				token.startsWith(
+
+						"Bearer "
+
+				)
 
 		) {
 
-			System.out.println("TOKEN FOUND");
-
 			token = token.substring(7);
 
-			String username = jwtService.extractUsername(token);
+			String username =
 
-			System.out.println("USER -> " + username);
+					jwtService.extractUsername(
+
+							token
+
+					);
+
+			String role =
+
+					jwtService.extractRole(
+
+							token
+
+					);
+
+			System.out.println(
+
+					"USER -> " + username
+
+			);
+
+			System.out.println(
+
+					"ROLE -> " + role
+
+			);
+
+			UsernamePasswordAuthenticationToken auth =
+
+					new UsernamePasswordAuthenticationToken(
+
+							username,
+
+							null,
+
+							AuthorityUtils.createAuthorityList(
+
+									"ROLE_" + role
+
+							)
+
+					);
+
+			auth.setDetails(
+
+					new WebAuthenticationDetailsSource()
+
+							.buildDetails(
+
+									request
+
+							)
+
+			);
+
+			SecurityContextHolder
+
+					.getContext()
+
+					.setAuthentication(
+
+							auth
+
+					);
+
+			System.out.println(
+
+					"AUTH SET"
+
+			);
 
 		}
 
-		filterChain.doFilter(request, response);
+		filterChain.doFilter(
+
+				request,
+
+				response
+
+		);
 
 	}
 

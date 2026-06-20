@@ -13,11 +13,11 @@ public class JwtService {
 	public static final String SECRET = "mySecretKeyForEmployeeManagementProject123456789";
 	private final Key key = Keys.hmacShaKeyFor(SECRET.getBytes());
 
-	public String generateToken(String username) {
+	public String generateToken(String username, String role) {
 
 		return Jwts.builder()
 
-				.subject(username)
+				.subject(username).claim("role", role)
 
 				.issuedAt(new Date())
 
@@ -53,6 +53,12 @@ public class JwtService {
 
 				.getSubject();
 
+	}
+
+	// Extract Role From JWT
+	public String extractRole(String token) {
+		return Jwts.parser().verifyWith((javax.crypto.SecretKey) key).build().parseSignedClaims(token).getPayload()
+				.get("role", String.class);
 	}
 
 }

@@ -37,7 +37,7 @@ public class AuthController {
 
 			return jwtService.generateToken(
 
-					request.getUsername()
+					request.getUsername(), request.getRole()
 
 			);
 
