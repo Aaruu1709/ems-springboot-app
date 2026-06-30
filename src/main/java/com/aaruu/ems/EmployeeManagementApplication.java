@@ -2,10 +2,14 @@ package com.aaruu.ems;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @SpringBootApplication
-@EnableJpaAuditing
+@EnableCaching
+
+@EnableJpaAuditing(auditorAwareRef = "auditorAwareImpl")
+//It tells Spring Boot to automatically keep track of who created or updated a record and when it happened.
 // activates Spring Data JPA's auditing capabilities.
 public class EmployeeManagementApplication {
 

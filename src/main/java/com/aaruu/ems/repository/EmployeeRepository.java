@@ -3,9 +3,6 @@ package com.aaruu.ems.repository;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import com.aaruu.ems.entity.Employee;
 
@@ -15,17 +12,20 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
 
 	List<Employee> findByDepartmentIgnoreCase(String department);
 
-	@Modifying
-	@Query("""
+//	@Modifying
+//	@Query("""
+//
+//			UPDATE Employee e
+//
+//			SET e.deleted=false
+//
+//			WHERE e.id=:id
+//
+//			""")
+//	void restoreEmployee(@Param("id") Integer id);
 
-			UPDATE Employee e
-
-			SET e.deleted=false
-
-			WHERE e.id=:id
-
-			""")
-	void restoreEmployee(@Param("id") Integer id);
+	List<Employee> findByDeletedFalse();
+	// Give only active employees
 }
 //The first generic type is the Entity class managed by the repository, 
 //and the second generic type is the data type of the Entity's primary key

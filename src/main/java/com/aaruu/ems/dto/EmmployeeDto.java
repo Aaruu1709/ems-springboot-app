@@ -1,9 +1,18 @@
 package com.aaruu.ems.dto;
 
+import java.io.Serializable;
+
+import lombok.Builder;
+
 //import jakarta.validation.constraints.Email;
 //import jakarta.validation.constraints.NotEmpty;
 
-public class EmmployeeDto {
+@Builder
+
+public class EmmployeeDto implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+
 //	@NotEmpty(message = "please enter your name")
 	private String firstName;
 //	@Email(message = "emial should be correcr")

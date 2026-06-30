@@ -13,12 +13,11 @@ package com.aaruu.ems.service;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.aaruu.ems.dto.EmmployeeDto;
 import com.aaruu.ems.entity.Employee;
 
-@Service
 public interface EmployeeService {
 
 	Employee saveEmployee(Employee employee);
@@ -40,6 +39,14 @@ public interface EmployeeService {
 	Employee patchEmployee(Integer id, Employee employee);
 
 	void restoreEmployee(Integer id);
+
+	String uploadEmployeePhoto(Integer id, MultipartFile file);
+
+	String uploadEmployeeResume(Integer id, MultipartFile file);
+
+	byte[] getEmployeePhoto(Integer id);
+
+	byte[] getEmployeeResume(Integer id);
 
 }
 

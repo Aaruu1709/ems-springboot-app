@@ -2,6 +2,8 @@ package com.aaruu.ems.controller;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,11 +18,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 //role of controller-"The Controller layer handles incoming HTTP requests, calls the Service layer
 //to process business logic, and returns responses to the client.
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.aaruu.ems.dto.EmmployeeDto;
 import com.aaruu.ems.entity.Employee;
 import com.aaruu.ems.payload.ApiResponse;
 import com.aaruu.ems.service.EmployeeService;
+import com.aaruu.ems.service.FileStorageService;
+import com.aaruu.ems.serviceImpl.FileStorageServiceImpl;
 //@RestController
 //It tells Spring Boot that this class will handle REST API requests and return data (usually JSON) to the client
 //@RestController is a combination of @Controller and @ResponseBody.
@@ -34,16 +39,31 @@ import jakarta.validation.Valid;
 public class EmployeeController {
 
 	private final EmployeeService employeeService;
+	private final FileStorageService fileStorageService;
+	private static final Logger log = LoggerFactory.getLogger(EmployeeController.class);
+	// log level: TRACE->DEBUG->INFO->WARN->ERROR
+	// "We use logging to monitor application behavior, track requests,
+//	debug issues, and troubleshoot production problems. Instead of using
+//	System.out.println(), 
+//	we use SLF4J with different log levels such as INFO, WARN, and ERROR."
 
-	public EmployeeController(EmployeeService employeeService) {
+	public EmployeeController(EmployeeService employeeService, FileStorageService fileStorageService,
+			FileStorageServiceImpl fileStorageServiceImpl) {
 		this.employeeService = employeeService;
+		this.fileStorageService = fileStorageService;
 
 	}
 
 	@PostMapping
 	public ResponseEntity<Employee> saveEmployee(@Valid @RequestBody Employee employee) {
-		Employee e = employeeService.saveEmployee(employee);
-		return ResponseEntity.status(201).body(e);
+
+		Employee emp = employeeService.saveEmployee(employee);
+		log.error("failed to save employee");
+
+		log.info("Create Employee ApI called");// basic log
+		log.info("Employee Email: {}", employee.getEmail());
+		log.info("fetching employee with id: {}", employee.getLastName() + "," + employee.getId());
+		return ResponseEntity.status(201).body(emp);
 	}
 	// Return HTTP status code 201 Created.
 	// Return the saved Employee object in the response body.
@@ -74,6 +94,7 @@ public class EmployeeController {
 		EmmployeeDto employee =
 
 				employeeService.getEmployeeById(id);
+		log.info("Create Employee API called:find by id ");
 
 		return ResponseEntity.ok(ResponseUtil.success("employee fetch successfully", employee));
 
@@ -82,13 +103,18 @@ public class EmployeeController {
 	@PutMapping("/{id}")
 	public Employee updateEmployee(@PathVariable Integer id, @RequestBody Employee employee) {
 
+		log.info("Create Employee API called:update emplyee");
+
 		return employeeService.updateEmployee(id, employee);
 	}
 
 	@DeleteMapping("/{id}")
-	public void deleteEmployee(@PathVariable Integer id) {
+	public void deleteEmployeeById(@PathVariable Integer id) {
+		log.warn("Warning:are you sure to delte emplyee");
+		log.warn("Deleting employee with id : {}", id);
 
 		employeeService.deleteEmployee(id);
+		log.warn("Employee deleted successfully id : {}", id);
 
 	}
 
@@ -139,9 +165,60 @@ public class EmployeeController {
 
 	@PatchMapping("/restore/{id}")
 	public ResponseEntity<?> restore(@PathVariable Integer id) {
+		System.out.println("RESTORE API ENTERED");
+
 		employeeService.restoreEmployee(id);
 		return ResponseEntity.ok(ResponseUtil.success("Employee restored", null));
 	}
+
+	@PostMapping("/upload/photo/{id}")
+	public ResponseEntity<String> uploadPhoto(
+
+			@PathVariable Integer id,
+
+			@RequestParam("file") MultipartFile file
+
+	) {
+
+		System.out.println("UPLOAD API ENTERED 🔥");
+
+		String photoUrl = employeeService.uploadEmployeePhoto(id, file);
+
+		return ResponseEntity.ok(photoUrl);
+
+	}
+
+	@PostMapping("/upload/resume/{id}")
+	public ResponseEntity<String> uploadResume(
+
+			@PathVariable Integer id,
+
+			@RequestParam("file") MultipartFile file
+
+	) {
+
+		String resumeUrl = employeeService.uploadEmployeeResume(id, file);
+
+		return ResponseEntity.ok(resumeUrl);
+	}
+
+	@GetMapping("/photo/{id}")
+	public ResponseEntity<byte[]> getPhoto(@PathVariable Integer id) {
+
+		byte[] photo = employeeService.getEmployeePhoto(id);
+
+		return ResponseEntity.ok().header("Content-Type", "image/jpeg").body(photo);
+	}
+
+	@GetMapping("/resume/{id}")
+	public ResponseEntity<byte[]> getResume(@PathVariable Integer id) {
+
+		byte[] resume = employeeService.getEmployeeResume(id);
+
+		return ResponseEntity.ok().header("Content-Type", "application/pdf")
+				.header("Content-Disposition", "attachment; filename=resume.pdf").body(resume);
+	}
+
 }
 
 //Controller should depend on the Service interface rather than the implementation.

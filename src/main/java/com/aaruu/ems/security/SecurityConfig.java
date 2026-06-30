@@ -72,7 +72,7 @@ public class SecurityConfig {
 
 										HttpMethod.POST,
 
-										"/employees"
+										"/employees/**"
 
 								)
 

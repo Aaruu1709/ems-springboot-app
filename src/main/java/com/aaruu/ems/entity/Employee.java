@@ -3,8 +3,9 @@ package com.aaruu.ems.entity;
 import java.time.LocalDateTime;
 
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.SQLRestriction;
+import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -20,7 +21,7 @@ import jakarta.validation.constraints.NotBlank;
 
 @Entity
 @SQLDelete(sql = "UPDATE employees SET deleted=true WHERE id=?")
-@SQLRestriction("deleted=false")
+//@SQLRestriction("deleted=false")
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "employees")
 public class Employee {
@@ -51,8 +52,16 @@ public class Employee {
 	private LocalDateTime updatedAt;
 	@Column(nullable = false)
 	private Boolean deleted = false;
+	@CreatedBy
+	private String createdBy;// Who created this employee?
+	@LastModifiedBy
+	private String updatedBy;// Who updated this employee last?
 
-	public Employee(Integer id, String firstName, String lastName, String email, String department, Double salary) {
+	private String photoUrl;
+	private String resumeUrl;
+
+	public Employee(Integer id, String firstName, String lastName, String email, String department, Double salary,
+			String createdBy, String updatedBy, String photoUrl, String resumeUrl) {
 		super();
 		this.id = id;
 		this.firstName = firstName;
@@ -60,6 +69,11 @@ public class Employee {
 		this.email = email;
 		this.department = department;
 		this.salary = salary;
+		this.createdBy = createdBy;
+		this.updatedBy = updatedBy;
+		this.photoUrl = photoUrl;
+		this.resumeUrl = resumeUrl;
+
 	}
 
 	public Employee() {
@@ -115,6 +129,46 @@ public class Employee {
 		this.salary = salary;
 	}
 
+	public Boolean getDeleted() {
+		return deleted;
+	}
+
+	public void setDeleted(Boolean deleted) {
+		this.deleted = deleted;
+	}
+
+	public LocalDateTime getUpdatedAt() {
+		return updatedAt;
+	}
+
+	public void setUpdatedAt(LocalDateTime updatedAt) {
+		this.updatedAt = updatedAt;
+	}
+
+	public String getUpdatedBy() {
+		return updatedBy;
+	}
+
+	public void setUpdatedBy(String updatedBy) {
+		this.updatedBy = updatedBy;
+	}
+
+	public String getPhotoUrl() {
+		return photoUrl;
+	}
+
+	public void setPhotoUrl(String photoUrl) {
+		this.photoUrl = photoUrl;
+	}
+
+	public String getResumeUrl() {
+		return resumeUrl;
+	}
+
+	public void setResumeUrl(String resumeUrl) {
+		this.resumeUrl = resumeUrl;
+	}
+
 }
 ///ok so this is first step we created entity class for represent table..now we move towards repository (communicate with db)
 
@@ -125,3 +179,29 @@ public class Employee {
 
 //i see in db tables ...my table name is differ than we mension here
 //so i found that -> Hibernate automatically converts camelCase field names to snake_case column names by default
+
+//--------------------------------------------
+
+//no need log factory only need lombok 
+//import lombok.extern.slf4j.Slf4j;
+
+//@Slf4j
+//@Service
+//public class EmployeeServiceImpl {
+//
+//    public void saveEmployee() {
+//
+//        log.info("Employee saved");
+//
+//    }
+//}
+//
+//That's it.
+//
+//No need for:
+//
+//private static final Logger log =
+//        LoggerFactory.getLogger(...);
+
+//----------------------------
+//The data remains in the database, and @SQLRestriction hides it from normal queries.

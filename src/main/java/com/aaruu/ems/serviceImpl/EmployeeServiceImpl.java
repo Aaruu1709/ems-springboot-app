@@ -6,7 +6,7 @@
 //logpack-actual tool to write lg
 //slf4j-common way to write logs
 //logger.info()-> SLF4J-> logback->console/file
-package com.aaruu.ems.service;
+package com.aaruu.ems.serviceImpl;
 
 import java.util.List;
 
@@ -15,10 +15,13 @@ import java.util.List;
 //Common logging interface
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.aaruu.ems.dto.EmmployeeDto;
 import com.aaruu.ems.entity.Employee;
@@ -28,6 +31,8 @@ import com.aaruu.ems.repository.EmployeeRepository;
 //Spring supports dependency injection using field injection, setter injection, and constructor injection.
 //In modern Spring Boot applications,
 //constructor injection is preferred because it improves testability and makes dependencies explicit."
+import com.aaruu.ems.service.EmployeeService;
+import com.aaruu.ems.service.FileStorageService;
 
 import jakarta.transaction.Transactional;
 
@@ -53,12 +58,25 @@ public class EmployeeServiceImpl implements EmployeeService {
 
 	private final EmployeeMapper employeeMapper;
 
-	public EmployeeServiceImpl(EmployeeRepository employeeRepository, EmployeeMapper employeeMapper) {
+	private final FileStorageService fileStorageService;
+
+//	@Autowired
+//	private  FileStorageService fileStorageService;
+	// here insteed of autowred i prefer construction injection
+
+//	private final FileStorageService fileStorageService;
+
+	public EmployeeServiceImpl(EmployeeRepository employeeRepository, EmployeeMapper employeeMapper,
+			FileStorageService fileStorageService) {
 
 		this.employeeRepository = employeeRepository;
 		this.employeeMapper = employeeMapper;
+		this.fileStorageService = fileStorageService;
 
 	}
+
+	private static final Logger log = LoggerFactory.getLogger(EmployeeServiceImpl.class);
+
 	// here i created constructor of this class and injcted employeeservice class
 	// insteed of @Autowiring i prefer to do constructor injection..bcoz it help us
 	// to do code loosley coupled
@@ -78,7 +96,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 	@Override
 	public List<EmmployeeDto> getAllEmployees() {
 
-		List<Employee> employees = employeeRepository.findAll();
+		List<Employee> employees = employeeRepository.findByDeletedFalse();
 
 		return employees.stream().map(employeeMapper::toDto).toList();
 
@@ -87,10 +105,13 @@ public class EmployeeServiceImpl implements EmployeeService {
 	// returns a List of entities.
 
 	@Override
+	@Cacheable(value = "employees", key = "#id")
 	public EmmployeeDto getEmployeeById(Integer id) {
+		logger.info("Fetching Employee from DATABASE");
+
 		logger.info("Fetching employee with id {}", id);
 		logger.warn("Employee not found {}", id);// warning->Data missing,unexpected result
-		logger.error("Database connection failed");// for failure, exception or server issue
+//		logger.error("Database connection failed");// for failure, exception or server issue
 
 //		logger.debug(
 //				"Employee object {}",
@@ -98,7 +119,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 //				);//developer debugging, local, testing
 
 		Employee employee = employeeRepository.findById(id)
-				.orElseThrow(() -> new EmployeeNotFoundException("Employee not found with id : " + id));
+				.orElseThrow(() -> new EmployeeNotFoundException("Employee not found with id :" + id));
 
 		return employeeMapper.toDto(employee);
 		// here we can also write orElseThrow(()->new RuntimeException("employee not
@@ -114,6 +135,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 //First I would check whether the record exists using findById(). If the record is found, I would update it. Otherwise, 
 //	I would return a 404 Not Found response
 	@Override
+	@CacheEvict(value = "employees", key = "#id")
 	public Employee updateEmployee(Integer id, Employee employee) {
 
 		Employee existingEmployee = employeeRepository.findById(id).orElse(null);
@@ -138,11 +160,14 @@ public class EmployeeServiceImpl implements EmployeeService {
 	// update
 
 	@Override
+	@CacheEvict(value = "employees", key = "#id")
 	public void deleteEmployee(Integer id) {
 		Employee employee = employeeRepository.findById(id)
 				.orElseThrow(() -> new EmployeeNotFoundException("Employee not found with id :" + id));
 
-		employeeRepository.deleteById(id);
+		employee.setDeleted(true);
+		employeeRepository.save(employee);
+
 	}
 	// JpaRepository provides the deleteById() method, which deletes a record based
 	// on its primary key.
@@ -174,6 +199,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
 		List<Employee> employees = employeeRepository
 				.findByFirstNameContainingIgnoreCaseOrEmailContainingIgnoreCase(keyword, keyword);
+		log.info("user found....");
 
 		return employees.stream().map(employeeMapper::toDto).toList();
 	}
@@ -204,7 +230,60 @@ public class EmployeeServiceImpl implements EmployeeService {
 	@Transactional
 	@Override
 	public void restoreEmployee(Integer id) {
-		employeeRepository.restoreEmployee(id);
+
+		Employee employee = employeeRepository.findById(id)
+				.orElseThrow(() -> new RuntimeException("Employee not found"));
+
+		employee.setDeleted(false);
+
+		employeeRepository.save(employee);
 	}
 
+	@Override
+	public String uploadEmployeePhoto(Integer id, MultipartFile file) {
+
+		Employee employee = employeeRepository.findById(id)
+				.orElseThrow(() -> new RuntimeException("Employee not found"));
+
+		String photoUrl = fileStorageService.uploadPhoto(file);
+
+		employee.setPhotoUrl(photoUrl);
+
+		employeeRepository.save(employee);
+
+		return photoUrl;
+	}
+
+	@Override
+	public String uploadEmployeeResume(Integer id, MultipartFile file) {
+
+		Employee employee = employeeRepository.findById(id)
+				.orElseThrow(() -> new RuntimeException("Employee not found"));
+
+		String resumeUrl = fileStorageService.uploadResume(file);
+
+		employee.setResumeUrl(resumeUrl);
+
+		employeeRepository.save(employee);
+
+		return resumeUrl;
+	}
+
+	@Override
+	public byte[] getEmployeePhoto(Integer id) {
+
+		Employee employee = employeeRepository.findById(id)
+				.orElseThrow(() -> new RuntimeException("Employee not found"));
+
+		return fileStorageService.getFile(employee.getPhotoUrl());
+	}
+
+	@Override
+	public byte[] getEmployeeResume(Integer id) {
+
+		Employee employee = employeeRepository.findById(id)
+				.orElseThrow(() -> new RuntimeException("Employee not found"));
+
+		return fileStorageService.getFile(employee.getResumeUrl());
+	}
 }
