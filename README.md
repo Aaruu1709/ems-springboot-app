@@ -611,6 +611,280 @@ Ready for Authorization
 
 ---
 ### day 14-15###
+
+# Module 15: Redis Caching
+
+## What is Redis?
+
+Redis is an in-memory database used to store frequently accessed data in RAM, so that data can be fetched faster without hitting the main database every time.
+
+---
+
+## Why do we use Redis?
+
+* Improve application performance
+* Reduce database load
+* Return responses faster
+* Store frequently used data in memory
+
+---
+
+## Redis Setup
+
+We used **Memurai** (Redis for Windows) because our system is Windows 11.
+
+Commands used:
+
+```bash
+cd "C:\Program Files\Memurai"
+
+memurai-cli.exe
+
+ping
+```
+
+Output:
+
+```bash
+PONG
+```
+
+This means Redis is running successfully.
+
+---
+
+## Enable Caching in Spring Boot
+
+```java
+@EnableCaching
+```
+
+This annotation enables caching support in the application.
+
+---
+
+## @Cacheable
+
+```java
+@Cacheable(
+    value = "employees",
+    key = "#id"
+)
+```
+
+### Purpose
+
+Stores method results in Redis.
+
+### Flow
+
+```text
+First Request
+
+Client
+ ↓
+Database
+ ↓
+Redis Cache
+
+Second Request
+
+Client
+ ↓
+Redis Cache
+(No Database Call)
+```
+
+### Interview Answer
+
+> @Cacheable is used to store method results in Redis. If the same request comes again, Spring returns data from cache instead of calling the database.
+
+---
+
+## Serializable DTO
+
+Redis stores Java objects using serialization.
+
+So DTO classes must implement Serializable.
+
+```java
+public class EmployeeDto implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+}
+```
+
+### Interview Answer
+
+> We implement Serializable because Redis converts Java objects into bytes before storing them in memory.
+
+---
+
+## Checking Data in Redis
+
+Command:
+
+```bash
+keys *
+```
+
+Example Output:
+
+```bash
+employees::22
+employees::23
+```
+
+This confirms that employee data is stored in Redis.
+
+---
+
+## Problem: Stale Cache
+
+Example:
+
+```text
+Database:
+
+Employee 23 -> Deleted
+
+Redis:
+
+employees::23 -> Still Exists
+```
+
+This is called Stale Cache.
+
+---
+
+## @CacheEvict
+
+```java
+@CacheEvict(
+    value = "employees",
+    key = "#id"
+)
+```
+
+### Purpose
+
+Removes old data from Redis when data is updated or deleted.
+
+### Used In
+
+* Update API
+* Delete API
+
+### Interview Answer
+
+> @CacheEvict removes stale data from Redis whenever records are updated or deleted, ensuring users always get fresh data.
+
+---
+
+## @CachePut
+
+```java
+@CachePut(
+    value = "employees",
+    key = "#id"
+)
+```
+
+### Purpose
+
+Updates Redis immediately with the latest data after method execution.
+
+### Interview Answer
+
+> @CachePut updates the cache with new data after executing the method, while @CacheEvict removes old cache data.
+
+---
+
+## Cache Aside Pattern
+
+### Flow
+
+```text
+GET Request
+
+Check Redis
+ ↓
+Data Found → Return Data
+
+OR
+
+Data Not Found
+ ↓
+Fetch From Database
+ ↓
+Store In Redis
+ ↓
+Return Response
+```
+
+### Update/Delete Flow
+
+```text
+Update/Delete Database
+ ↓
+Remove Cache
+ ↓
+Next GET Creates Fresh Cache
+```
+
+### Interview Answer
+
+> In Cache Aside Pattern, the application first checks Redis. If data is not available, it fetches data from the database and stores it in Redis. During updates or deletes, the cache is invalidated so fresh data is loaded later.
+
+---
+
+# Difference Between Cache Annotations
+
+| Annotation  | Purpose                  | Used In          |
+| ----------- | ------------------------ | ---------------- |
+| @Cacheable  | Store data in Redis      | GET APIs         |
+| @CacheEvict | Remove old cache         | PUT, DELETE APIs |
+| @CachePut   | Update cache immediately | PUT APIs         |
+
+---
+
+# Most Important Redis Interview Questions
+
+1. What is Redis?
+2. Why do we use Redis?
+3. Difference between Redis and MySQL?
+4. What is In-Memory Database?
+5. What is @Cacheable?
+6. What is @CacheEvict?
+7. What is @CachePut?
+8. What is Cache Aside Pattern?
+9. Why should DTO implement Serializable?
+10. How do you verify that Redis caching is working?
+11. What happens if Redis goes down?
+12. When should we not use Redis?
+
+---
+
+# My Learning
+
+Today I learned:
+
+* Redis installation using Memurai
+* Spring Boot Redis integration
+* @EnableCaching
+* @Cacheable
+* DTO Serialization
+* Redis CLI commands
+* @CacheEvict
+* @CachePut theory
+* Cache Aside Pattern
+* Industry interview concepts related to Redis
+
+-------------------------------------------------------------------
+
+### day 17-18
+
 ------------------------------------------------------------------------------------
 
 ## API Endpoints
