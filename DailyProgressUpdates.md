@@ -885,6 +885,214 @@ Today I learned:
 
 ### day 17-18
 
+
+
+# Docker Basics & Spring Boot Dockerization
+
+## What is Docker?
+
+Docker is a containerization platform that packages an application along with all its dependencies so that it runs consistently in every environment.
+
+## Why Do We Use Docker?
+
+* Eliminates the "works on my machine" problem.
+* Provides the same environment for development, testing, and production.
+* Makes deployment easy and fast.
+* Supports microservices architecture.
+* Helps in scaling applications efficiently.
+
+## Important Docker Concepts
+
+### Docker Image
+
+A Docker image is a read-only blueprint that contains application code, dependencies, runtime, and configurations.
+
+### Docker Container
+
+A container is a running instance of a Docker image.
+
+### Image vs Container
+
+* Image = Java Class
+* Container = Java Object
+
+## Docker Architecture
+
+Docker Client
+↓
+Docker Engine
+↓
+Docker Images
+↓
+Docker Containers
+
+## First Docker Command
+
+Command:
+
+```bash
+docker run hello-world
+```
+
+Internal Flow:
+
+1. Docker checks whether the image exists locally.
+2. If not, it downloads the image from Docker Hub.
+3. Docker creates a container from the image.
+4. The application inside the container runs.
+5. Output is displayed on the terminal.
+6. The container stops automatically.
+
+## Dockerfile
+
+A Dockerfile is a text file that contains instructions to build a Docker image.
+
+### Dockerfile Used in Employee Management Project
+
+```dockerfile
+FROM eclipse-temurin:21-jdk
+
+WORKDIR /app
+
+COPY target/SpringBootWithJDBC-0.0.1-SNAPSHOT.jar app.jar
+
+EXPOSE 8081
+
+ENTRYPOINT ["java","-jar","app.jar"]
+```
+
+## Dockerfile Commands
+
+### FROM
+
+Specifies the base image.
+
+Example:
+
+```dockerfile
+FROM eclipse-temurin:21-jdk
+```
+
+### WORKDIR
+
+Sets the working directory inside the container.
+
+Example:
+
+```dockerfile
+WORKDIR /app
+```
+
+### COPY
+
+Copies files from the local machine to the container.
+
+Example:
+
+```dockerfile
+COPY target/SpringBootWithJDBC-0.0.1-SNAPSHOT.jar app.jar
+```
+
+### EXPOSE
+
+Documents the port used by the application.
+
+Example:
+
+```dockerfile
+EXPOSE 8081
+```
+
+### ENTRYPOINT
+
+Defines the command that runs when the container starts.
+
+Example:
+
+```dockerfile
+ENTRYPOINT ["java","-jar","app.jar"]
+```
+
+## Building Spring Boot JAR
+
+```bash
+mvnw.cmd clean package
+```
+
+This command:
+
+* Cleans old build files.
+* Compiles source code.
+* Runs JUnit tests.
+* Generates an executable JAR file.
+
+## Building Docker Image
+
+```bash
+docker build -t employee-app .
+```
+
+This command:
+
+* Reads the Dockerfile.
+* Pulls the Java base image.
+* Copies the Spring Boot JAR.
+* Creates a Docker image named `employee-app`.
+
+## Running Docker Container
+
+```bash
+docker run -p 8081:8081 employee-app
+```
+
+Port Mapping:
+
+```text
+Host Machine Port (8081)
+↓
+Docker Container Port (8081)
+```
+
+## Challenge Faced
+
+### Problem
+
+Spring Boot application failed to connect to MySQL after running inside Docker.
+
+### Root Cause
+
+Inside a Docker container, `localhost` refers to the container itself, not the host machine.
+
+### Learning
+
+For proper communication between Spring Boot, MySQL, and Redis containers, Docker Compose and Docker networking should be used.
+
+## Key Takeaways
+
+* Learned Docker fundamentals.
+* Understood Images and Containers.
+* Created the first Dockerfile.
+* Generated Spring Boot executable JAR.
+* Built the first Docker image.
+* Learned about Docker networking concepts and localhost behavior inside containers.
+
+
+
+
+
+
+
+
+
+
+
+-------------------------------------------------------------------------------------
+###DAY 19-20
+
+
+
+
+
 ------------------------------------------------------------------------------------
 
 ## API Endpoints
