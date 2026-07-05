@@ -1089,7 +1089,32 @@ For proper communication between Spring Boot, MySQL, and Redis containers, Docke
 -------------------------------------------------------------------------------------
 ###DAY 19-20
 
+Q1. What is Docker?
+Answer
 
+Docker is an open-source containerization platform that packages an application along with all its dependencies, libraries, and runtime into lightweight containers. These containers ensure that the application behaves consistently across different environments such as development, testing, and production.
+
+Q2. What is the difference between a Docker Image and a Docker Container?
+Answer
+
+A Docker Image is a read-only blueprint that contains the application, runtime, libraries, and dependencies required to run the application. A Docker Container is a running instance of that image. We can create multiple containers from a single image.
+
+Example:
+
+Dockerfile
+      ↓
+Docker Image
+      ↓
+Docker Container
+Q3. Why do we use Docker in Spring Boot projects?
+Answer
+
+Docker helps eliminate environment-related issues by packaging the Spring Boot application together with its runtime and dependencies. This makes deployment easier, improves portability, and ensures consistent execution across developer machines, testing servers, and production environments.
+
+Q4. Describe your Docker implementation in your project.
+Answer
+
+In my Employee Management System project, I created a Dockerfile using Eclipse Temurin JDK 21 as the base image. I copied the executable Spring Boot JAR into the container, exposed port 8080, and configured the entry point to run the application. I built the Docker image using docker build and started the application using docker run. During implementation, I faced a database connectivity issue because the application inside the container was trying to connect to localhost. I analyzed the problem using docker logs and learned that localhost inside a container refers to the container itself, not the host machine. I understood that for local development we can use host.docker.internal, while in production environments Docker Compose is used to connect multiple containers through service names.
 
 
 
