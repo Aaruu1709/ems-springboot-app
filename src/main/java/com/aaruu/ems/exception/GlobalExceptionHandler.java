@@ -13,9 +13,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import com.aaruu.ems.payload.ApiResponse;
 
 @RestControllerAdvice
+//used for centralized exception handliing
+//this class handles exceptions for the entire application..instead of wirting try catch in every controller we write it only once.
 public class GlobalExceptionHandler {
 
 	@ExceptionHandler(EmployeeNotFoundException.class)
+	// whenever this exception occures anywhere call this method
 	@ResponseStatus(HttpStatus.NOT_FOUND)
 
 	public ResponseEntity<ApiResponse<Object>> handleEmployeeNotFoundException(EmployeeNotFoundException ex) {

@@ -178,10 +178,19 @@ runtime
 
 <!--redis dependency ended hre-->
 
+
+<!--jnunit dependency-->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-test</artifactId>
+    <scope>test</scope>
+</dependency>
+<!--junit dependency-->
 		
 		
 		<!--toekn dependency end here-->
 
+		
 	</dependencies>
 
 	<build>

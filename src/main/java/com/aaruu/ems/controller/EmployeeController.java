@@ -22,7 +22,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.aaruu.ems.dto.EmmployeeDto;
 import com.aaruu.ems.entity.Employee;
-import com.aaruu.ems.payload.ApiResponse;
 import com.aaruu.ems.service.EmployeeService;
 import com.aaruu.ems.service.FileStorageService;
 import com.aaruu.ems.serviceImpl.FileStorageServiceImpl;
@@ -32,10 +31,19 @@ import com.aaruu.ems.serviceImpl.FileStorageServiceImpl;
 //It is used to create RESTful web services and automatically converts Java objects into JSON responses
 import com.aaruu.ems.util.ResponseUtil;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/employees")
+@Tag(name = "employee managemet sytem", description = "API for managing employee")
+
+@SecurityRequirement(name = "Bearer Authentication")
+
 public class EmployeeController {
 
 	private final EmployeeService employeeService;
@@ -86,21 +94,25 @@ public class EmployeeController {
 	// Java object.
 
 	@GetMapping("/{id}")
+	@Operation(summary = "Get Employee By ID", description = "Fetch employee details using employee ID")
+	@ApiResponses({ @ApiResponse(responseCode = "200", description = "Employee fetched successfully"),
+			@ApiResponse(responseCode = "404", description = "Employee not found"),
+			@ApiResponse(responseCode = "401", description = "Unauthorized access") })
+	public ResponseEntity<com.aaruu.ems.payload.ApiResponse<EmmployeeDto>> getEmployeeById(@PathVariable Integer id) {
 
-	public ResponseEntity<ApiResponse<EmmployeeDto>>
+		EmmployeeDto employee = employeeService.getEmployeeById(id);
 
-			getEmployeeById(@PathVariable Integer id) {
+		log.info("Find Employee API called: {}", id);
 
-		EmmployeeDto employee =
-
-				employeeService.getEmployeeById(id);
-		log.info("Create Employee API called:find by id ");
-
-		return ResponseEntity.ok(ResponseUtil.success("employee fetch successfully", employee));
-
+		return ResponseEntity.ok(ResponseUtil.success("Employee fetched successfully", employee));
 	}
 
 	@PutMapping("/{id}")
+	@Operation(summary = "Update Employee", description = "Update employee details using employee ID")
+	@ApiResponses({ @ApiResponse(responseCode = "200", description = "Employee updated successfully"),
+			@ApiResponse(responseCode = "404", description = "Employee not found"),
+			@ApiResponse(responseCode = "400", description = "Validation failed") })
+
 	public Employee updateEmployee(@PathVariable Integer id, @RequestBody Employee employee) {
 
 		log.info("Create Employee API called:update emplyee");
@@ -109,6 +121,9 @@ public class EmployeeController {
 	}
 
 	@DeleteMapping("/{id}")
+	@Operation(summary = "Delete Employee", description = "Soft delete an employee using employee ID")
+	@ApiResponses({ @ApiResponse(responseCode = "200", description = "Employee deleted successfully"),
+			@ApiResponse(responseCode = "404", description = "Employee not found") })
 	public void deleteEmployeeById(@PathVariable Integer id) {
 		log.warn("Warning:are you sure to delte emplyee");
 		log.warn("Deleting employee with id : {}", id);

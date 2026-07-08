@@ -1,0 +1,22 @@
+✅ What is Swagger?
+
+Swagger is a tool used to design, document, and test REST APIs.
+ It provides a UI where we can see all API endpoints and test them directly from 
+ the browser without using Postman.
+ Swagger is an API documentation and testing tool used for REST APIs.
+ We use Swagger to automatically generate API documentation and to test APIs directly from the browser.
+ Automatic API documentation
+Easy API testing without Postman
+Shows request and response models
+Helps frontend, backend, and QA teams collaborate
+Reduces manual documentation effort
+@Operation → To describe an API endpoint
+@Tag → To group related APIs
+@Parameter → To document request parameters
+--------------------------------------
+In my Employee Management System, I used SpringDoc OpenAPI. 
+I created an OpenApiConfig class and configured @SecurityScheme with HTTP
+ Bearer authentication and JWT format. Then I used @SecurityRequirement at the
+  controller level so that Swagger UI automatically sends the JWT token in the 
+  Authorization header while testing secured APIs.
+ This allowed frontend and QA teams to test protected APIs without using Postman.

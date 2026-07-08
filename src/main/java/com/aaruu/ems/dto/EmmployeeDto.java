@@ -2,6 +2,7 @@ package com.aaruu.ems.dto;
 
 import java.io.Serializable;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
 //import jakarta.validation.constraints.Email;
@@ -14,8 +15,12 @@ public class EmmployeeDto implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 //	@NotEmpty(message = "please enter your name")
+	@Schema(description = "Employee first name", example = "Aaruu")
 	private String firstName;
 //	@Email(message = "emial should be correcr")
+
+	//
+	@Schema(description = "Enter Email", example = "abc@gmail.com")
 	private String email;
 
 	public EmmployeeDto(String firstName, String email) {
