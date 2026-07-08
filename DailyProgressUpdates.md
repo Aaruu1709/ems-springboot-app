@@ -611,6 +611,513 @@ Ready for Authorization
 
 ---
 ### day 14-15###
+
+# Module 15: Redis Caching
+
+## What is Redis?
+
+Redis is an in-memory database used to store frequently accessed data in RAM, so that data can be fetched faster without hitting the main database every time.
+
+---
+
+## Why do we use Redis?
+
+* Improve application performance
+* Reduce database load
+* Return responses faster
+* Store frequently used data in memory
+
+---
+
+## Redis Setup
+
+We used **Memurai** (Redis for Windows) because our system is Windows 11.
+
+Commands used:
+
+```bash
+cd "C:\Program Files\Memurai"
+
+memurai-cli.exe
+
+ping
+```
+
+Output:
+
+```bash
+PONG
+```
+
+This means Redis is running successfully.
+
+---
+
+## Enable Caching in Spring Boot
+
+```java
+@EnableCaching
+```
+
+This annotation enables caching support in the application.
+
+---
+
+## @Cacheable
+
+```java
+@Cacheable(
+    value = "employees",
+    key = "#id"
+)
+```
+
+### Purpose
+
+Stores method results in Redis.
+
+### Flow
+
+```text
+First Request
+
+Client
+ ↓
+Database
+ ↓
+Redis Cache
+
+Second Request
+
+Client
+ ↓
+Redis Cache
+(No Database Call)
+```
+
+### Interview Answer
+
+> @Cacheable is used to store method results in Redis. If the same request comes again, Spring returns data from cache instead of calling the database.
+
+---
+
+## Serializable DTO
+
+Redis stores Java objects using serialization.
+
+So DTO classes must implement Serializable.
+
+```java
+public class EmployeeDto implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+}
+```
+
+### Interview Answer
+
+> We implement Serializable because Redis converts Java objects into bytes before storing them in memory.
+
+---
+
+## Checking Data in Redis
+
+Command:
+
+```bash
+keys *
+```
+
+Example Output:
+
+```bash
+employees::22
+employees::23
+```
+
+This confirms that employee data is stored in Redis.
+
+---
+
+## Problem: Stale Cache
+
+Example:
+
+```text
+Database:
+
+Employee 23 -> Deleted
+
+Redis:
+
+employees::23 -> Still Exists
+```
+
+This is called Stale Cache.
+
+---
+
+## @CacheEvict
+
+```java
+@CacheEvict(
+    value = "employees",
+    key = "#id"
+)
+```
+
+### Purpose
+
+Removes old data from Redis when data is updated or deleted.
+
+### Used In
+
+* Update API
+* Delete API
+
+### Interview Answer
+
+> @CacheEvict removes stale data from Redis whenever records are updated or deleted, ensuring users always get fresh data.
+
+---
+
+## @CachePut
+
+```java
+@CachePut(
+    value = "employees",
+    key = "#id"
+)
+```
+
+### Purpose
+
+Updates Redis immediately with the latest data after method execution.
+
+### Interview Answer
+
+> @CachePut updates the cache with new data after executing the method, while @CacheEvict removes old cache data.
+
+---
+
+## Cache Aside Pattern
+
+### Flow
+
+```text
+GET Request
+
+Check Redis
+ ↓
+Data Found → Return Data
+
+OR
+
+Data Not Found
+ ↓
+Fetch From Database
+ ↓
+Store In Redis
+ ↓
+Return Response
+```
+
+### Update/Delete Flow
+
+```text
+Update/Delete Database
+ ↓
+Remove Cache
+ ↓
+Next GET Creates Fresh Cache
+```
+
+### Interview Answer
+
+> In Cache Aside Pattern, the application first checks Redis. If data is not available, it fetches data from the database and stores it in Redis. During updates or deletes, the cache is invalidated so fresh data is loaded later.
+
+---
+
+# Difference Between Cache Annotations
+
+| Annotation  | Purpose                  | Used In          |
+| ----------- | ------------------------ | ---------------- |
+| @Cacheable  | Store data in Redis      | GET APIs         |
+| @CacheEvict | Remove old cache         | PUT, DELETE APIs |
+| @CachePut   | Update cache immediately | PUT APIs         |
+
+---
+
+# Most Important Redis Interview Questions
+
+1. What is Redis?
+2. Why do we use Redis?
+3. Difference between Redis and MySQL?
+4. What is In-Memory Database?
+5. What is @Cacheable?
+6. What is @CacheEvict?
+7. What is @CachePut?
+8. What is Cache Aside Pattern?
+9. Why should DTO implement Serializable?
+10. How do you verify that Redis caching is working?
+11. What happens if Redis goes down?
+12. When should we not use Redis?
+
+---
+
+# My Learning
+
+Today I learned:
+
+* Redis installation using Memurai
+* Spring Boot Redis integration
+* @EnableCaching
+* @Cacheable
+* DTO Serialization
+* Redis CLI commands
+* @CacheEvict
+* @CachePut theory
+* Cache Aside Pattern
+* Industry interview concepts related to Redis
+
+-------------------------------------------------------------------
+
+### day 17-18
+
+
+
+# Docker Basics & Spring Boot Dockerization
+
+## What is Docker?
+
+Docker is a containerization platform that packages an application along with all its dependencies so that it runs consistently in every environment.
+
+## Why Do We Use Docker?
+
+* Eliminates the "works on my machine" problem.
+* Provides the same environment for development, testing, and production.
+* Makes deployment easy and fast.
+* Supports microservices architecture.
+* Helps in scaling applications efficiently.
+
+## Important Docker Concepts
+
+### Docker Image
+
+A Docker image is a read-only blueprint that contains application code, dependencies, runtime, and configurations.
+
+### Docker Container
+
+A container is a running instance of a Docker image.
+
+### Image vs Container
+
+* Image = Java Class
+* Container = Java Object
+
+## Docker Architecture
+
+Docker Client
+↓
+Docker Engine
+↓
+Docker Images
+↓
+Docker Containers
+
+## First Docker Command
+
+Command:
+
+```bash
+docker run hello-world
+```
+
+Internal Flow:
+
+1. Docker checks whether the image exists locally.
+2. If not, it downloads the image from Docker Hub.
+3. Docker creates a container from the image.
+4. The application inside the container runs.
+5. Output is displayed on the terminal.
+6. The container stops automatically.
+
+## Dockerfile
+
+A Dockerfile is a text file that contains instructions to build a Docker image.
+
+### Dockerfile Used in Employee Management Project
+
+```dockerfile
+FROM eclipse-temurin:21-jdk
+
+WORKDIR /app
+
+COPY target/SpringBootWithJDBC-0.0.1-SNAPSHOT.jar app.jar
+
+EXPOSE 8081
+
+ENTRYPOINT ["java","-jar","app.jar"]
+```
+
+## Dockerfile Commands
+
+### FROM
+
+Specifies the base image.
+
+Example:
+
+```dockerfile
+FROM eclipse-temurin:21-jdk
+```
+
+### WORKDIR
+
+Sets the working directory inside the container.
+
+Example:
+
+```dockerfile
+WORKDIR /app
+```
+
+### COPY
+
+Copies files from the local machine to the container.
+
+Example:
+
+```dockerfile
+COPY target/SpringBootWithJDBC-0.0.1-SNAPSHOT.jar app.jar
+```
+
+### EXPOSE
+
+Documents the port used by the application.
+
+Example:
+
+```dockerfile
+EXPOSE 8081
+```
+
+### ENTRYPOINT
+
+Defines the command that runs when the container starts.
+
+Example:
+
+```dockerfile
+ENTRYPOINT ["java","-jar","app.jar"]
+```
+
+## Building Spring Boot JAR
+
+```bash
+mvnw.cmd clean package
+```
+
+This command:
+
+* Cleans old build files.
+* Compiles source code.
+* Runs JUnit tests.
+* Generates an executable JAR file.
+
+## Building Docker Image
+
+```bash
+docker build -t employee-app .
+```
+
+This command:
+
+* Reads the Dockerfile.
+* Pulls the Java base image.
+* Copies the Spring Boot JAR.
+* Creates a Docker image named `employee-app`.
+
+## Running Docker Container
+
+```bash
+docker run -p 8081:8081 employee-app
+```
+
+Port Mapping:
+
+```text
+Host Machine Port (8081)
+↓
+Docker Container Port (8081)
+```
+
+## Challenge Faced
+
+### Problem
+
+Spring Boot application failed to connect to MySQL after running inside Docker.
+
+### Root Cause
+
+Inside a Docker container, `localhost` refers to the container itself, not the host machine.
+
+### Learning
+
+For proper communication between Spring Boot, MySQL, and Redis containers, Docker Compose and Docker networking should be used.
+
+## Key Takeaways
+
+* Learned Docker fundamentals.
+* Understood Images and Containers.
+* Created the first Dockerfile.
+* Generated Spring Boot executable JAR.
+* Built the first Docker image.
+* Learned about Docker networking concepts and localhost behavior inside containers.
+
+
+
+
+
+
+
+
+
+
+
+-------------------------------------------------------------------------------------
+###DAY 19-20
+
+Q1. What is Docker?
+Answer
+
+Docker is an open-source containerization platform that packages an application along with all its dependencies, libraries, and runtime into lightweight containers. These containers ensure that the application behaves consistently across different environments such as development, testing, and production.
+
+Q2. What is the difference between a Docker Image and a Docker Container?
+Answer
+
+A Docker Image is a read-only blueprint that contains the application, runtime, libraries, and dependencies required to run the application. A Docker Container is a running instance of that image. We can create multiple containers from a single image.
+
+Example:
+
+Dockerfile
+      ↓
+Docker Image
+      ↓
+Docker Container
+Q3. Why do we use Docker in Spring Boot projects?
+Answer
+
+Docker helps eliminate environment-related issues by packaging the Spring Boot application together with its runtime and dependencies. This makes deployment easier, improves portability, and ensures consistent execution across developer machines, testing servers, and production environments.
+
+Q4. Describe your Docker implementation in your project.
+Answer
+
+In my Employee Management System project, I created a Dockerfile using Eclipse Temurin JDK 21 as the base image. I copied the executable Spring Boot JAR into the container, exposed port 8080, and configured the entry point to run the application. I built the Docker image using docker build and started the application using docker run. During implementation, I faced a database connectivity issue because the application inside the container was trying to connect to localhost. I analyzed the problem using docker logs and learned that localhost inside a container refers to the container itself, not the host machine. I understood that for local development we can use host.docker.internal, while in production environments Docker Compose is used to connect multiple containers through service names.
+
+
+
 ------------------------------------------------------------------------------------
 
 ## API Endpoints
