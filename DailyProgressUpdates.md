@@ -885,8 +885,6 @@ Today I learned:
 
 ### day 17-18
 
-
-
 # Docker Basics & Spring Boot Dockerization
 
 ## What is Docker?
@@ -1077,15 +1075,6 @@ For proper communication between Spring Boot, MySQL, and Redis containers, Docke
 * Learned about Docker networking concepts and localhost behavior inside containers.
 
 
-
-
-
-
-
-
-
-
-
 -------------------------------------------------------------------------------------
 ###DAY 19-20
 
@@ -1117,6 +1106,227 @@ Answer
 In my Employee Management System project, I created a Dockerfile using Eclipse Temurin JDK 21 as the base image. I copied the executable Spring Boot JAR into the container, exposed port 8080, and configured the entry point to run the application. I built the Docker image using docker build and started the application using docker run. During implementation, I faced a database connectivity issue because the application inside the container was trying to connect to localhost. I analyzed the problem using docker logs and learned that localhost inside a container refers to the container itself, not the host machine. I understood that for local development we can use host.docker.internal, while in production environments Docker Compose is used to connect multiple containers through service names.
 
 
+--------------------------------------------------------
+##DAY 21-22
+----------------------
+
+# 🚀 Docker Compose Integration - Progress Update
+
+**Date:** 06 August 2026
+
+## 📌 Module Completed
+
+Docker Compose & Multi-Container Spring Boot Application
+
+---
+
+## 🎯 Objective
+
+Containerize the Spring Boot Employee Management application and run it with MySQL and Redis using Docker Compose.
+
+---
+
+# ✅ Tasks Completed Today
+
+### 1. Maven Build Verification
+
+* Successfully generated executable Spring Boot JAR.
+* Fixed Maven test failures by configuring Spring profiles for test classes.
+* Verified build using:
+
+```bash
+mvnw.cmd clean package
+```
+
+**Result:**
+
+```
+BUILD SUCCESS
+```
+
+---
+
+### 2. Spring Profile Configuration
+
+Configured environment-specific property files:
+
+* application.properties
+* application-dev.properties
+* application-docker.properties
+* application-prod.properties
+
+Purpose:
+
+* **Dev** → Local MySQL
+* **Docker** → Docker MySQL Container
+* **Production** → Production Database
+
+---
+
+### 3. Dockerfile Verification
+
+Verified Dockerfile configuration.
+
+Configured:
+
+* Java 21 Base Image
+* Working Directory
+* Copy Spring Boot JAR
+* Expose Port 8081
+* EntryPoint
+
+Successfully built Docker image.
+
+---
+
+### 4. Docker Compose Setup
+
+Configured:
+
+* Spring Boot Container
+* MySQL 8 Container
+* Redis Container
+* Docker Network
+* Port Mapping
+* Container Dependencies
+
+---
+
+### 5. Fixed Docker Issues
+
+Resolved multiple issues:
+
+* Dockerfile syntax error
+* Spring profile loading issue
+* Maven build failure
+* Port conflicts (3306)
+* Container startup failure
+* Database connection issue
+* Spring Boot test profile issue
+
+---
+
+### 6. Successfully Started Containers
+
+Verified using:
+
+```bash
+docker ps
+```
+
+Running Containers:
+
+* employee-container
+* mysql-db
+* redis-container
+
+All containers are running successfully.
+
+---
+
+### 7. Verified Spring Boot Application
+
+Application started successfully inside Docker.
+
+Verified logs:
+
+```
+Tomcat started on port 8081
+
+Started EmployeeManagementApplication
+```
+
+---
+
+### 8. Database Verification
+
+Connected Docker MySQL using MySQL Workbench.
+
+Connection Details:
+
+Host:
+
+```
+localhost
+```
+
+Port:
+
+```
+3307
+```
+
+Username:
+
+```
+root
+```
+
+Password:
+
+```
+root
+```
+
+Successfully verified newly inserted employee records.
+
+This confirmed that:
+
+* Spring Boot is connected to Docker MySQL.
+* CRUD operations are working correctly.
+* Docker database is different from the local MySQL database.
+
+---
+
+### 9. Docker Commands Practiced
+
+```bash
+docker --version
+
+docker images
+
+docker ps
+
+docker ps -a
+
+docker compose build
+
+docker compose up
+
+docker logs employee-container
+
+mvnw.cmd clean package
+```
+
+---
+
+# 🧠 Key Concepts Learned
+
+* Docker Image
+* Docker Container
+* Docker Compose
+* Multi-Container Architecture
+* Spring Profiles
+* Environment-Specific Configuration
+* Container Networking
+* Port Mapping
+* Docker Logs
+* Docker Database Verification
+* MySQL Workbench Connection with Docker Database
+
+---
+
+# 🏆 Today's Achievement
+
+Successfully containerized the complete backend application.
+
+Established communication between:
+
+* Spring Boot
+* MySQL
+* Redis
+
+Verified that the application, database, and cache containers are running correctly inside Docker.
 
 ------------------------------------------------------------------------------------
 
