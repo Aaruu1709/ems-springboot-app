@@ -1,0 +1,45 @@
+services:
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-db
+
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: employeemanagement
+
+    ports:
+      - "3307:3306"
+
+    networks:
+      - employee-network
+
+  redis:
+    image: redis:latest
+    container_name: redis-container
+
+    ports:
+      - "6379:6379"
+
+    networks:
+      - employee-network
+
+  employee-app:
+    build: .
+    container_name: employee-container
+
+    ports:
+      - "8081:8081"
+
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+
+    depends_on:
+      - mysql
+      - redis
+
+    networks:
+      - employee-network
+
+networks:
+  employee-network:

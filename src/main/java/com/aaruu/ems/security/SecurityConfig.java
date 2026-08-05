@@ -52,6 +52,8 @@ public class SecurityConfig {
 
 								.permitAll()
 
+								.requestMatchers("/test/**").permitAll()
+
 								.requestMatchers(
 
 										HttpMethod.GET,
@@ -60,6 +62,7 @@ public class SecurityConfig {
 
 								)
 
+//								.permitAll()
 								.hasAnyRole(
 
 										"ADMIN",
