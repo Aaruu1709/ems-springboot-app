@@ -26,6 +26,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.aaruu.ems.dto.EmmployeeDto;
 import com.aaruu.ems.entity.Employee;
 import com.aaruu.ems.exception.EmployeeNotFoundException;
+import com.aaruu.ems.kafka.event.EmployeeCreatedEvent;
+import com.aaruu.ems.kafka.producer.KafkaProducerService;
 import com.aaruu.ems.mapper.EmployeeMapper;
 import com.aaruu.ems.repository.EmployeeRepository;
 //Spring supports dependency injection using field injection, setter injection, and constructor injection.
@@ -60,6 +62,8 @@ public class EmployeeServiceImpl implements EmployeeService {
 
 	private final FileStorageService fileStorageService;
 
+	private final KafkaProducerService kafkaProducerService;
+
 //	@Autowired
 //	private  FileStorageService fileStorageService;
 	// here insteed of autowred i prefer construction injection
@@ -67,11 +71,12 @@ public class EmployeeServiceImpl implements EmployeeService {
 //	private final FileStorageService fileStorageService;
 
 	public EmployeeServiceImpl(EmployeeRepository employeeRepository, EmployeeMapper employeeMapper,
-			FileStorageService fileStorageService) {
+			FileStorageService fileStorageService, KafkaProducerService kafkaProducerService) {
 
 		this.employeeRepository = employeeRepository;
 		this.employeeMapper = employeeMapper;
 		this.fileStorageService = fileStorageService;
+		this.kafkaProducerService = kafkaProducerService;
 
 	}
 
@@ -84,8 +89,16 @@ public class EmployeeServiceImpl implements EmployeeService {
 	@Override
 	public Employee saveEmployee(Employee employee) {
 
-		return employeeRepository.save(employee);
+		Employee savedEmployee = employeeRepository.save(employee);
+
+		EmployeeCreatedEvent event = new EmployeeCreatedEvent(savedEmployee.getId(), savedEmployee.getFirstName(),
+				savedEmployee.getEmail());
+
+		kafkaProducerService.sendEmployeeCreatedEvent(event);
+
+		return savedEmployee;
 	}
+
 	// This method receives an Employee object,
 //	calls the Repository layer to save it in the database, and returns the saved Employee object.
 //Then Repository talks to Hibernate → Hibernate generates SQL → MySQL stores the record.
