@@ -1328,6 +1328,80 @@ Established communication between:
 
 Verified that the application, database, and cache containers are running correctly inside Docker.
 
+
+#-----------------------------------------------------------------------
+## Day 23-24
+--------------------------------------
+## Daily Progress – 08 August 2026
+
+### Kafka Integration – In Progress
+
+Today I started integrating **Apache Kafka** into the Employee Management System.
+
+### Completed
+
+* Added Kafka dependency/configuration to the Spring Boot project.
+* Created Kafka **Producer**.
+* Created Kafka **Consumer**.
+* Added the required Kafka-related classes/files.
+* Started the Spring Boot application successfully.
+* Tested the Employee Create API.
+* Verified that the Kafka Producer is being initialized.
+* Kafka Producer successfully received a `ProducerId`.
+
+### Current Status
+
+Kafka integration is **partially completed**.
+
+The Spring Boot application is communicating with Kafka, and the Producer is successfully initialized.
+
+Example log:
+
+```text
+[Producer clientId=EmployeeManagement-producer-1]
+ProducerId set to 1000 with epoch 0
+```
+
+### Pending Work
+
+* Complete Employee Created Event implementation.
+* Connect the Employee Service with Kafka Producer.
+* Publish employee events to the Kafka topic.
+* Verify the Kafka topic and messages.
+* Verify Consumer receives the published employee event.
+* Complete end-to-end testing.
+* Handle and fix the current `failed to save employee` issue.
+* Verify Employee Create API after Kafka integration.
+
+### Next Step
+
+Next, I will connect the **Employee Service → Kafka Producer → Kafka Topic → Kafka Consumer** flow and verify the complete event-driven communication.
+
+**Status:** 🚧 In Progress
+--------------------------------------------------------------------
+## DAY 25-26
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ------------------------------------------------------------------------------------
 
 ## API Endpoints
