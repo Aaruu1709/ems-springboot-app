@@ -66,7 +66,7 @@ public class EmployeeController {
 	public ResponseEntity<Employee> saveEmployee(@Valid @RequestBody Employee employee) {
 
 		Employee emp = employeeService.saveEmployee(employee);
-		log.error("failed to save employee");
+//		log.error("failed to save employee");
 
 		log.info("Create Employee ApI called");// basic log
 		log.info("Employee Email: {}", employee.getEmail());
