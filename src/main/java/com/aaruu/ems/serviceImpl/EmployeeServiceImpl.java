@@ -1,11 +1,3 @@
-//"Logger is used to record application events, 
-//monitor execution flow, debug issues, and track errors.
-//In Spring Boot we 
-//commonly use SLF4J as abstraction and Logback as implementation
-
-//logpack-actual tool to write lg
-//slf4j-common way to write logs
-//logger.info()-> SLF4J-> logback->console/file
 package com.aaruu.ems.serviceImpl;
 
 import java.util.List;
@@ -46,15 +38,16 @@ import jakarta.transaction.Transactional;
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
 
-	// simple developer language->what,when,where happend
-	// methods of logger: info
+// simple developer language->what,when,where happend
+// methods of logger: info
 	private static final Logger logger = LoggerFactory.getLogger(EmployeeServiceImpl.class);
-//static:Avoid creating logger object repeatedly
-//	logger logger->create space to write log
-	// LoggerFactory->Factory creates logger object
-	// EmployeeServiceImpl.class: attach logger to this class
-	// Create one permanent logger for this class
-//	to print application activity.
+
+// static:Avoid creating logger object repeatedly
+// logger logger->create space to write log
+// LoggerFactory->Factory creates logger object
+// EmployeeServiceImpl.class: attach logger to this class
+// Create one permanent logger for this class
+// to print application activity.
 
 	private final EmployeeRepository employeeRepository;
 
@@ -66,7 +59,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
 //	@Autowired
 //	private  FileStorageService fileStorageService;
-	// here insteed of autowred i prefer construction injection
+// here insteed of autowred i prefer construction injection
 
 //	private final FileStorageService fileStorageService;
 
@@ -80,11 +73,9 @@ public class EmployeeServiceImpl implements EmployeeService {
 
 	}
 
-	private static final Logger log = LoggerFactory.getLogger(EmployeeServiceImpl.class);
-
-	// here i created constructor of this class and injcted employeeservice class
-	// insteed of @Autowiring i prefer to do constructor injection..bcoz it help us
-	// to do code loosley coupled
+// here i created constructor of this class and injcted employeeservice class
+// insteed of @Autowiring i prefer to do constructor injection..bcoz it help us
+// to do code loosley coupled
 
 	@Override
 	public Employee saveEmployee(Employee employee) {
@@ -96,15 +87,19 @@ public class EmployeeServiceImpl implements EmployeeService {
 
 		kafkaProducerService.sendEmployeeCreatedEvent(event);
 
+		logger.info("Employee created successfully with id: {}", savedEmployee.getId());
+
 		return savedEmployee;
 	}
 
-	// This method receives an Employee object,
-//	calls the Repository layer to save it in the database, and returns the saved Employee object.
-//Then Repository talks to Hibernate → Hibernate generates SQL → MySQL stores the record.
-	// The Repository layer interacts with the database. In Spring Data JPA,
-	// Repository methods are implemented by Spring,
-//	and Hibernate handles the SQL generation behind the scenes.
+// This method receives an Employee object,
+// calls the Repository layer to save it in the database, and returns the saved
+// Employee object.
+// Then Repository talks to Hibernate → Hibernate generates SQL → MySQL stores
+// the record.
+// The Repository layer interacts with the database. In Spring Data JPA,
+// Repository methods are implemented by Spring,
+// and Hibernate handles the SQL generation behind the scenes.
 
 	@Override
 	public List<EmmployeeDto> getAllEmployees() {
@@ -114,97 +109,97 @@ public class EmployeeServiceImpl implements EmployeeService {
 		return employees.stream().map(employeeMapper::toDto).toList();
 
 	}
-	// We can use the built-in findAll() method provided by JpaRepository. It
-	// returns a List of entities.
+
+// We can use the built-in findAll() method provided by JpaRepository. It
+// returns a List of entities.
 
 	@Override
 	@Cacheable(value = "employees", key = "#id")
 	public EmmployeeDto getEmployeeById(Integer id) {
+
 		logger.info("Fetching Employee from DATABASE");
-
 		logger.info("Fetching employee with id {}", id);
-		logger.warn("Employee not found {}", id);// warning->Data missing,unexpected result
-//		logger.error("Database connection failed");// for failure, exception or server issue
 
-//		logger.debug(
-//				"Employee object {}",
-//				employee
-//				);//developer debugging, local, testing
+		// logger.warn("Employee not found {}", id);// warning->Data missing,unexpected
+		// result
+		// logger.error("Database connection failed");// for failure, exception or
+		// server issue
 
-		Employee employee = employeeRepository.findById(id)
-				.orElseThrow(() -> new EmployeeNotFoundException("Employee not found with id :" + id));
+		// logger.debug(
+		// "Employee object {}",
+		// employee
+		// );//developer debugging, local, testing
+
+		Employee employee = employeeRepository.findByIdAndDeletedFalse(id).orElseThrow(() -> {
+			logger.warn("Employee not found with id: {}", id);
+
+			return new EmployeeNotFoundException("Employee not found with id: " + id);
+		});
 
 		return employeeMapper.toDto(employee);
-		// here we can also write orElseThrow(()->new RuntimeException("employee not
-		// found"));
-	}
-	// Find employee by id. If found, return employee. Otherwise return null.
-	// findById() returns an Optional<Entity>. It helps avoid NullPointerException
-	// and provides a safe way to handle missing records.
 
-	// In REST APIs, returning 404 Not Found is preferred because the requested
-	// resource does not exist.
-//    Returning 200 OK with null can be misleading
-//First I would check whether the record exists using findById(). If the record is found, I would update it. Otherwise, 
-//	I would return a 404 Not Found response
+	}
+
+// Find employee by id. If found, return employee. Otherwise return null.
+// findById() returns an Optional<Entity>. It helps avoid NullPointerException
+// and provides a safe way to handle missing records.
+
+// In REST APIs, returning 404 Not Found is preferred because the requested
+// resource does not exist.
+// Returning 200 OK with null can be misleading
+// First I would check whether the record exists using findById(). If the record
+// is found, I would update it. Otherwise,
+// I would return a 404 Not Found response
+
 	@Override
 	@CacheEvict(value = "employees", key = "#id")
-
 //	@CachePut(value="employees", key="#id")
 	public Employee updateEmployee(Integer id, Employee employee) {
 
-		Employee existingEmployee = employeeRepository.findById(id).orElse(null);
-		if (existingEmployee == null) {
-			return null;
-//throw new RuntimeException("Employee not found");
-		}
+		Employee existingEmployee = employeeRepository.findById(id)
+				.orElseThrow(() -> new EmployeeNotFoundException("Employee not found with id: " + id));
 
-//		existingEmployee.setFirstName(employee.getFirstName());
-//		existingEmployee.setLastName(employee.getLastName());
-//		existingEmployee.setEmail(employee.getEmail());
-//		existingEmployee.setDepartment(employee.getDepartment());
-//		existingEmployee.setSalary(employee.getSalary());
+		// existingEmployee.setFirstName(employee.getFirstName());
+		// existingEmployee.setLastName(employee.getLastName());
+		// existingEmployee.setEmail(employee.getEmail());
+		// existingEmployee.setDepartment(employee.getDepartment());
+		// existingEmployee.setSalary(employee.getSalary());
 
 		// mapper
 		employeeMapper.updateEmployee(employee, existingEmployee);
 
+		logger.info("Employee updated successfully with id: {}", id);
+
 		return employeeRepository.save(existingEmployee);
 	}
-	// JpaRepository uses the save() method for both insert and update operations.
-	// If the entity already exists with a valid primary key, save() performs an
-	// update
+
+// JpaRepository uses the save() method for both insert and update operations.
+// If the entity already exists with a valid primary key, save() performs an
+// update
 
 	@Override
 	@CacheEvict(value = "employees", key = "#id")
 	public void deleteEmployee(Integer id) {
+
 		Employee employee = employeeRepository.findById(id)
-				.orElseThrow(() -> new EmployeeNotFoundException("Employee not found with id :" + id));
+				.orElseThrow(() -> new EmployeeNotFoundException("Employee not found with id: " + id));
 
 		employee.setDeleted(true);
 		employeeRepository.save(employee);
 
+		logger.info("Employee soft deleted successfully with id: {}", id);
 	}
-	// JpaRepository provides the deleteById() method, which deletes a record based
-	// on its primary key.
+
+// JpaRepository provides the deleteById() method, which deletes a record based
+// on its primary key.
 
 	@Override
 	public Page<EmmployeeDto> getEmployees(int page, int size, String sortBy, String direction) {
 
-		Page<Employee> employees = employeeRepository.findAll(PageRequest.of(page, size, Sort.by(sortBy)));
-//		return employees.map(employee -> new EmmployeeDto(employee.getFirstName(), employee.getEmail()));
-		// mapper
+		Sort sort = direction.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
 
-		Sort sort =
-
-				direction.equalsIgnoreCase("desc")
-
-						?
-
-						Sort.by(sortBy).descending()
-
-						:
-
-						Sort.by(sortBy).ascending();
+		// Fetch only active employees while applying pagination and sorting.
+		Page<Employee> employees = employeeRepository.findByDeletedFalse(PageRequest.of(page, size, sort));
 
 		return employees.map(employeeMapper::toDto);
 	}
@@ -212,9 +207,10 @@ public class EmployeeServiceImpl implements EmployeeService {
 	@Override
 	public List<EmmployeeDto> searchEmployee(String keyword) {
 
-		List<Employee> employees = employeeRepository
-				.findByFirstNameContainingIgnoreCaseOrEmailContainingIgnoreCase(keyword, keyword);
-		log.info("user found....");
+		// Search only active employees by first name or email.
+		List<Employee> employees = employeeRepository.searchActiveEmployees(keyword);
+
+		// log.info("user found....");
 
 		return employees.stream().map(employeeMapper::toDto).toList();
 	}
@@ -222,7 +218,9 @@ public class EmployeeServiceImpl implements EmployeeService {
 	@Override
 	public List<EmmployeeDto> filterByDepartment(String department) {
 
-		List<Employee> employees = employeeRepository.findByDepartmentIgnoreCase(department);
+		// Filter only active employees by department.
+		List<Employee> employees = employeeRepository.findByDeletedFalseAndDepartmentIgnoreCase(department);
+
 		return employees.stream().map(employeeMapper::toDto).toList();
 
 	}
@@ -230,13 +228,12 @@ public class EmployeeServiceImpl implements EmployeeService {
 	@Override
 	public Employee patchEmployee(Integer id, Employee employee) {
 
-		Employee existingEmployee =
-
-				employeeRepository.findById(id)
-
-						.orElseThrow(() -> new EmployeeNotFoundException("Employee not found with id : " + id));
+		Employee existingEmployee = employeeRepository.findById(id)
+				.orElseThrow(() -> new EmployeeNotFoundException("Employee not found with id: " + id));
 
 		employeeMapper.patchEmployee(employee, existingEmployee);
+
+		logger.info("Employee partially updated successfully with id: {}", id);
 
 		return employeeRepository.save(existingEmployee);
 
@@ -247,24 +244,28 @@ public class EmployeeServiceImpl implements EmployeeService {
 	public void restoreEmployee(Integer id) {
 
 		Employee employee = employeeRepository.findById(id)
-				.orElseThrow(() -> new RuntimeException("Employee not found"));
+				.orElseThrow(() -> new EmployeeNotFoundException("Employee not found with id: " + id));
 
 		employee.setDeleted(false);
 
 		employeeRepository.save(employee);
+
+		logger.info("Employee restored successfully with id: {}", id);
 	}
 
 	@Override
 	public String uploadEmployeePhoto(Integer id, MultipartFile file) {
 
 		Employee employee = employeeRepository.findById(id)
-				.orElseThrow(() -> new RuntimeException("Employee not found"));
+				.orElseThrow(() -> new EmployeeNotFoundException("Employee not found with id: " + id));
 
 		String photoUrl = fileStorageService.uploadPhoto(file);
 
 		employee.setPhotoUrl(photoUrl);
 
 		employeeRepository.save(employee);
+
+		logger.info("Employee photo uploaded successfully for id: {}", id);
 
 		return photoUrl;
 	}
@@ -273,13 +274,15 @@ public class EmployeeServiceImpl implements EmployeeService {
 	public String uploadEmployeeResume(Integer id, MultipartFile file) {
 
 		Employee employee = employeeRepository.findById(id)
-				.orElseThrow(() -> new RuntimeException("Employee not found"));
+				.orElseThrow(() -> new EmployeeNotFoundException("Employee not found with id: " + id));
 
 		String resumeUrl = fileStorageService.uploadResume(file);
 
 		employee.setResumeUrl(resumeUrl);
 
 		employeeRepository.save(employee);
+
+		logger.info("Employee resume uploaded successfully for id: {}", id);
 
 		return resumeUrl;
 	}
@@ -288,7 +291,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 	public byte[] getEmployeePhoto(Integer id) {
 
 		Employee employee = employeeRepository.findById(id)
-				.orElseThrow(() -> new RuntimeException("Employee not found"));
+				.orElseThrow(() -> new EmployeeNotFoundException("Employee not found with id: " + id));
 
 		return fileStorageService.getFile(employee.getPhotoUrl());
 	}
@@ -297,8 +300,9 @@ public class EmployeeServiceImpl implements EmployeeService {
 	public byte[] getEmployeeResume(Integer id) {
 
 		Employee employee = employeeRepository.findById(id)
-				.orElseThrow(() -> new RuntimeException("Employee not found"));
+				.orElseThrow(() -> new EmployeeNotFoundException("Employee not found with id: " + id));
 
 		return fileStorageService.getFile(employee.getResumeUrl());
 	}
+
 }

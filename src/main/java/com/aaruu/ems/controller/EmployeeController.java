@@ -22,9 +22,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.aaruu.ems.dto.EmmployeeDto;
 import com.aaruu.ems.entity.Employee;
+import com.aaruu.ems.payload.ApiResponse;
 import com.aaruu.ems.service.EmployeeService;
 import com.aaruu.ems.service.FileStorageService;
-import com.aaruu.ems.serviceImpl.FileStorageServiceImpl;
 //@RestController
 //It tells Spring Boot that this class will handle REST API requests and return data (usually JSON) to the client
 //@RestController is a combination of @Controller and @ResponseBody.
@@ -32,7 +32,7 @@ import com.aaruu.ems.serviceImpl.FileStorageServiceImpl;
 import com.aaruu.ems.util.ResponseUtil;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
+//import io.swagger.v3.oas.annotations.responses.ApiResponse as SwaggerApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -49,56 +49,59 @@ public class EmployeeController {
 	private final EmployeeService employeeService;
 	private final FileStorageService fileStorageService;
 	private static final Logger log = LoggerFactory.getLogger(EmployeeController.class);
-	// log level: TRACE->DEBUG->INFO->WARN->ERROR
-	// "We use logging to monitor application behavior, track requests,
-//	debug issues, and troubleshoot production problems. Instead of using
-//	System.out.println(), 
-//	we use SLF4J with different log levels such as INFO, WARN, and ERROR."
 
-	public EmployeeController(EmployeeService employeeService, FileStorageService fileStorageService,
-			FileStorageServiceImpl fileStorageServiceImpl) {
+// log level: TRACE->DEBUG->INFO->WARN->ERROR
+// "We use logging to monitor application behavior, track requests,
+// debug issues, and troubleshoot production problems. Instead of using
+// System.out.println(),
+// we use SLF4J with different log levels such as INFO, WARN, and ERROR."
+
+	public EmployeeController(EmployeeService employeeService, FileStorageService fileStorageService) {
 		this.employeeService = employeeService;
 		this.fileStorageService = fileStorageService;
 
 	}
 
 	@PostMapping
-	public ResponseEntity<Employee> saveEmployee(@Valid @RequestBody Employee employee) {
+	public ResponseEntity<ApiResponse<Employee>> saveEmployee(@Valid @RequestBody Employee employee) {
 
 		Employee emp = employeeService.saveEmployee(employee);
-//		log.error("failed to save employee");
 
-		log.info("Create Employee ApI called");// basic log
-		log.info("Employee Email: {}", employee.getEmail());
+		log.info("Create Employee API called");
+		log.info("Employee created successfully with id: {}", emp.getId());
 		log.info("fetching employee with id: {}", employee.getLastName() + "," + employee.getId());
-		return ResponseEntity.status(201).body(emp);
+
+		return ResponseEntity.status(201).body(ResponseUtil.success("Employee created successfully", emp));
 	}
-	// Return HTTP status code 201 Created.
-	// Return the saved Employee object in the response body.
-	// @RequestBody is used to bind the JSON data from the HTTP request body to a
-	// Java object.
+
+// Return HTTP status code 201 Created.
+// Return the saved Employee object in the response body.
+// @RequestBody is used to bind the JSON data from the HTTP request body to a
+// Java object.
 
 	@GetMapping("/allEmployees")
 	public List<EmmployeeDto> getAllEmployees() {
 		return employeeService.getAllEmployees();
 	}
-//@PathVariable is used to extract values from the URL and bind them to method parameters.
+
+// @PathVariable is used to extract values from the URL and bind them to method parameters.
 //	| Annotation      | Used For                            |
 //	| --------------- | ----------------------------------- |
-//	| `@RequestBody`  | Reads data from request body (JSON) |
-//	| `@PathVariable` | Reads data from URL path            |
+//	| @RequestBody    | Reads data from request body (JSON) |
+//	| @PathVariable   | Reads data from URL path            |
 
-	// @PathVariable is used to extract dynamic values from the URL and bind them to
-	// method parameters
-	// @RequestBody-It receives JSON from the request body and converts it into a
-	// Java object.
+// @PathVariable is used to extract dynamic values from the URL and bind them to
+// method parameters
+// @RequestBody-It receives JSON from the request body and converts it into a
+// Java object.
 
 	@GetMapping("/{id}")
 	@Operation(summary = "Get Employee By ID", description = "Fetch employee details using employee ID")
-	@ApiResponses({ @ApiResponse(responseCode = "200", description = "Employee fetched successfully"),
-			@ApiResponse(responseCode = "404", description = "Employee not found"),
-			@ApiResponse(responseCode = "401", description = "Unauthorized access") })
-	public ResponseEntity<com.aaruu.ems.payload.ApiResponse<EmmployeeDto>> getEmployeeById(@PathVariable Integer id) {
+	@ApiResponses({
+			@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Employee fetched successfully"),
+			@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Employee not found"),
+			@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Unauthorized access") })
+	public ResponseEntity<ApiResponse<EmmployeeDto>> getEmployeeById(@PathVariable Integer id) {
 
 		EmmployeeDto employee = employeeService.getEmployeeById(id);
 
@@ -109,25 +112,30 @@ public class EmployeeController {
 
 	@PutMapping("/{id}")
 	@Operation(summary = "Update Employee", description = "Update employee details using employee ID")
-	@ApiResponses({ @ApiResponse(responseCode = "200", description = "Employee updated successfully"),
-			@ApiResponse(responseCode = "404", description = "Employee not found"),
-			@ApiResponse(responseCode = "400", description = "Validation failed") })
+	@ApiResponses({
+			@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Employee updated successfully"),
+			@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Employee not found"),
+			@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Validation failed") })
+	public ResponseEntity<ApiResponse<Employee>> updateEmployee(@PathVariable Integer id,
+			@Valid @RequestBody Employee employee) {
 
-	public Employee updateEmployee(@PathVariable Integer id, @RequestBody Employee employee) {
+		log.info("Update Employee API called for id: {}", id);
 
-		log.info("Create Employee API called:update emplyee");
+		Employee updatedEmployee = employeeService.updateEmployee(id, employee);
 
-		return employeeService.updateEmployee(id, employee);
+		log.info("Employee updated successfully with id: {}", id);
+
+		return ResponseEntity.ok(ResponseUtil.success("Employee updated successfully", updatedEmployee));
 	}
 
 	@DeleteMapping("/{id}")
 	@Operation(summary = "Delete Employee", description = "Soft delete an employee using employee ID")
-	@ApiResponses({ @ApiResponse(responseCode = "200", description = "Employee deleted successfully"),
-			@ApiResponse(responseCode = "404", description = "Employee not found") })
+	@ApiResponses({
+			@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Employee deleted successfully"),
+			@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Employee not found") })
 	public void deleteEmployeeById(@PathVariable Integer id) {
 		log.warn("Warning:are you sure to delte emplyee");
-		log.warn("Deleting employee with id : {}", id);
-
+		log.info("Delete Employee API called for id: {}", id);
 		employeeService.deleteEmployee(id);
 		log.warn("Employee deleted successfully id : {}", id);
 
@@ -136,10 +144,10 @@ public class EmployeeController {
 	@GetMapping("/page")
 	public ResponseEntity<Page<EmmployeeDto>> getEmployee(@RequestParam int page, @RequestParam int size,
 			@RequestParam String sortBy, @RequestParam String direction) {
+
 		Page<EmmployeeDto> employees = employeeService.getEmployees(page, size, sortBy, direction);
 
 		return ResponseEntity.ok(employees);
-
 	}
 
 	@GetMapping("/search")
@@ -159,23 +167,11 @@ public class EmployeeController {
 	}
 
 	@PatchMapping("/{id}")
+	public ResponseEntity<Employee> patchEmployee(@PathVariable Integer id, @Valid @RequestBody Employee employee) {
 
-	public ResponseEntity<Employee>
-
-			patchEmployee(
-
-					@PathVariable Integer id,
-
-					@RequestBody Employee employee
-
-	) {
-
-		Employee updated =
-
-				employeeService.patchEmployee(id, employee);
+		Employee updated = employeeService.patchEmployee(id, employee);
 
 		return ResponseEntity.ok(updated);
-
 	}
 
 	@PatchMapping("/restore/{id}")
@@ -187,13 +183,7 @@ public class EmployeeController {
 	}
 
 	@PostMapping("/upload/photo/{id}")
-	public ResponseEntity<String> uploadPhoto(
-
-			@PathVariable Integer id,
-
-			@RequestParam("file") MultipartFile file
-
-	) {
+	public ResponseEntity<String> uploadPhoto(@PathVariable Integer id, @RequestParam("file") MultipartFile file) {
 
 		System.out.println("UPLOAD API ENTERED 🔥");
 
@@ -204,13 +194,7 @@ public class EmployeeController {
 	}
 
 	@PostMapping("/upload/resume/{id}")
-	public ResponseEntity<String> uploadResume(
-
-			@PathVariable Integer id,
-
-			@RequestParam("file") MultipartFile file
-
-	) {
+	public ResponseEntity<String> uploadResume(@PathVariable Integer id, @RequestParam("file") MultipartFile file) {
 
 		String resumeUrl = employeeService.uploadEmployeeResume(id, file);
 

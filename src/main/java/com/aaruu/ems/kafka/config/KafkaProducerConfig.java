@@ -28,6 +28,9 @@ public class KafkaProducerConfig {
 
 		config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
 
+		// Don't send Java class/package information with the Kafka message.
+		config.put(JsonSerializer.ADD_TYPE_INFO_HEADERS, false);
+
 		return new DefaultKafkaProducerFactory<>(config);
 	}
 
