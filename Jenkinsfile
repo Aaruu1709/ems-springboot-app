@@ -3,9 +3,9 @@ pipeline {
 
     stages {
 
-        stage('Hello') {
+        stage('Build') {
             steps {
-                echo 'Jenkins is connected to EMS project- Aaruu !'
+                bat 'mvn clean package'
             }
         }
 
